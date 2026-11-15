@@ -25,7 +25,7 @@ The source is compiled from a temporary path without spaces because the bundled 
 
 ## Controllers
 
-The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3. The external 16-step editing mode and its Launch Control XL controller profile have been removed. The simulator retains a Launchpad Mk2 adapter solely for existing UI regression tests.
+The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles. The external 16-step editing mode and its Launch Control XL controller profile have been removed. ID does not distribute desktop or web simulators; the source still contains a simulator test harness, including a Launchpad Mk2 adapter for existing UI regression tests.
 
 ## ID site
 
