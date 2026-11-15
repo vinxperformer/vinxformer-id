@@ -1,10 +1,11 @@
 #pragma once
 
 #include "LaunchpadDevice.h"
+#ifdef PLATFORM_SIM
 #include "LaunchpadMk2Device.h"
+#endif
 #include "LaunchpadMk3Device.h"
 #include "LaunchpadProDevice.h"
-#include "LaunchpadProMk3Device.h"
 
 #include "ui/Controller.h"
 
@@ -91,6 +92,7 @@ private:
         AcidEuclideanPhrase,
         Vandalize,
         Wreck,
+        Permutation,
         Entropy,
         Euclidean,
         InitLayer,
@@ -122,31 +124,24 @@ private:
     void sequenceSetFollowMode(int col);
     void sequenceToggleStep(int row, int col);
     void sequenceToggleNoteStep(int row, int col);
-    void sequenceToggleLogicStep(int row, int col);
     void sequenceEditStep(int row, int col);
     void sequenceEditNoteStep(int row, int col);
     void sequenceEditCurveStep(int row, int col);
-    void sequenceEditStochasticStep(int row, int col);
-    void sequenceEditLogicStep(int row, int col);
     void sequenceEditArpStep(int row, int col);
 
 
     void sequenceDrawLayer();
     void sequenceDrawStepRange(int highlight);
-    void stochasticDrawRestProbability();
     void arpDrawRestProbability();
     void sequenceDrawRunMode();
     void sequenceDrawFollowMode();
     void sequenceDrawSequence();
     void sequenceDrawNoteSequence();
     void sequenceDrawCurveSequence();
-    void sequenceDrawStochasticSequence();
-    void sequenceDrawLogicSequence();
     void sequenceDrawArpSequence();
 
 
     void manageCircuitKeyboard(const Button &button);
-    void manageStochasticCircuitKeyboard(const Button &button);
     void manageArpCircuitKeyboard(const Button &button);
     bool generatorModeTrackSupported(Track::TrackMode mode) const;
     bool generatorModeTrackSupported() const;
@@ -171,7 +166,6 @@ private:
     bool generatorTrackSelectionLockedByUiKind() const;
     bool generatorTrackSelectionLockedByTopPage() const;
     void drawRunningKeyboardCircuit(int row, int col, const NoteSequence::Step &step, const Scale &scale, int rootNote);
-    void drawRunningStochasticKeyboardCircuit(int row, int col, const StochasticSequence::Step &step, const Scale &scale, int rootNote);
     void drawRunningArpKeyboardCircuit(int row, int col, const ArpSequence::Step &step, const Scale &scale, int rootNote);
 
 
@@ -218,15 +212,7 @@ private:
     void drawCurveSequenceBars(const CurveSequence &sequence, CurveSequence::Layer layer, int currentStep);
     void drawCurveSequenceDots(const CurveSequence &sequence, CurveSequence::Layer layer, int currentStep);
 
-    void drawStochasticSequenceBits(const StochasticSequence &sequence, StochasticSequence::Layer layer, int currentStep);
-    void drawStochasticSequenceBars(const StochasticSequence &sequence, StochasticSequence::Layer layer, int currentStep);
-    void drawStochasticSequenceNotes(const StochasticSequence &sequence, StochasticSequence::Layer layer, int currentStep);
-    void drawStochasticSequenceDots(const StochasticSequence &sequence, StochasticSequence::Layer layer, int currentStep);
 
-    void drawLogicSequenceBits(const LogicSequence &sequence, LogicSequence::Layer layer, int currentStep);
-    void drawLogicSequenceBars(const LogicSequence &sequence, LogicSequence::Layer layer, int currentStep);
-    void drawLogicSequenceNotes(const LogicSequence &sequence, LogicSequence::Layer layer, int currentStep);
-    void drawLogicSequenceDots(const LogicSequence &sequence, LogicSequence::Layer layer, int currentStep);
 
     void drawArpSequenceBits(const ArpSequence &sequence, ArpSequence::Layer layer, int currentStep);
     void drawArpSequenceBars(const ArpSequence &sequence, ArpSequence::Layer layer, int currentStep);
@@ -312,7 +298,11 @@ private:
 
     Project &_project;
     
-    Container<LaunchpadDevice, LaunchpadMk2Device, LaunchpadMk3Device, LaunchpadProDevice, LaunchpadProMk3Device> _deviceContainer;
+#ifdef PLATFORM_SIM
+    Container<LaunchpadDevice, LaunchpadMk2Device, LaunchpadMk3Device, LaunchpadProDevice> _deviceContainer;
+#else
+    Container<LaunchpadMk3Device, LaunchpadProDevice> _deviceContainer;
+#endif
     LaunchpadDevice *_device;
     Mode _mode = Mode::Sequence;
 

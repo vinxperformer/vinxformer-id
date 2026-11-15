@@ -67,6 +67,7 @@ static const Scale *scales[] = {
 };
 
 static const int BuiltinCount = sizeof(scales) / sizeof(Scale *);
+static_assert(Scale::MusicalPresetCount == BuiltinCount - 1, "Musical preset pool must exclude Voltage");
 static const int UserCount = UserScale::userScales.size();
 
 int Scale::Count = BuiltinCount + UserCount;

@@ -24,6 +24,8 @@ public:
             case 3:
                 return Generator::Mode::Euclidean;
             case 4:
+                return Generator::Mode::Permutation;
+            case 5:
                 return Generator::Mode::InitSteps;
             default:
                 return Generator::Mode::Random;
@@ -45,7 +47,7 @@ public:
     }
 
     virtual int rows() const override {
-        return _allowAcid ? 5 : 4;
+        return _allowAcid ? 6 : 4;
     }
 
     virtual int columns() const override {

@@ -5,15 +5,17 @@
 #include "ChaosGenerator.h"
 #include "EuclideanGenerator.h"
 #include "RandomGenerator.h"
+#include "PermutationGenerator.h"
 
 #include "core/utils/Container.h"
 
-static Container<EuclideanGenerator, RandomGenerator, AcidGenerator, ChaosGenerator, ChaosEntropyGenerator> generatorContainer;
+static Container<EuclideanGenerator, RandomGenerator, AcidGenerator, ChaosGenerator, ChaosEntropyGenerator, PermutationGenerator> generatorContainer;
 static EuclideanGenerator::Params euclideanParams;
 static RandomGenerator::Params randomParams;
 static AcidGenerator::Params acidParams;
 static ChaosGenerator::Params chaosParams;
 static ChaosEntropyGenerator::Params chaosEntropyParams;
+static PermutationGenerator::Params permutationParams;
 static Generator::Mode activeGeneratorMode = Generator::Mode::Last;
 
 void Generator::destroyActive() {
@@ -32,6 +34,9 @@ void Generator::destroyActive() {
         break;
     case Mode::ChaosEntropy:
         generatorContainer.destroy(&generatorContainer.as<ChaosEntropyGenerator>());
+        break;
+    case Mode::Permutation:
+        generatorContainer.destroy(&generatorContainer.as<PermutationGenerator>());
         break;
     case Mode::InitLayer:
     case Mode::InitSteps:
@@ -75,6 +80,9 @@ Generator *Generator::execute(Generator::Mode mode, SequenceBuilder &builder, st
     case Mode::ChaosEntropy:
         activeGeneratorMode = mode;
         return generatorContainer.create<ChaosEntropyGenerator>(builder, chaosEntropyParams, selected);
+    case Mode::Permutation:
+        activeGeneratorMode = mode;
+        return generatorContainer.create<PermutationGenerator>(builder, permutationParams, static_cast<ChaosSequenceBuilder &>(builder).selectedTrackIndex());
     case Mode::Last:
         break;
     }

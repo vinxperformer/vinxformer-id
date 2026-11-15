@@ -11,6 +11,7 @@
 #include "engine/generators/Generator.h"
 #include "engine/generators/EuclideanGenerator.h"
 #include "engine/generators/RandomGenerator.h"
+#include "engine/generators/PermutationGenerator.h"
 
 #include <cstdio>
 #include <functional>
@@ -110,7 +111,6 @@ bool entropyCellTarget(int cell, ChaosEntropyGenerator::Target &target) {
     case 10: target = ChaosEntropyGenerator::Target::PrimaryValueVariationProbability; return true;
     case 14: target = ChaosEntropyGenerator::Target::Register; return true;
     case 3:  target = ChaosEntropyGenerator::Target::Motion; return true;
-    case 7:  target = ChaosEntropyGenerator::Target::LogicRepeatRules; return true;
     default: break;
     }
     return false;
@@ -311,6 +311,7 @@ void GeneratorPage::show(Generator *generator, StepSelection<CONFIG_STEP_COUNT> 
     _stepSelection = stepSelection;
     _applied = false;
     _boundTrackIndex = _project.selectedTrackIndex();
+    _boundPatternIndex = _project.selectedPatternIndex();
     _boundTrackMode = _project.selectedTrack().trackMode();
 
     BasePage::show();
@@ -318,6 +319,7 @@ void GeneratorPage::show(Generator *generator, StepSelection<CONFIG_STEP_COUNT> 
 
 bool GeneratorPage::boundTrackContextValid() const {
     return _project.selectedTrackIndex() == _boundTrackIndex &&
+           _project.selectedPatternIndex() == _boundPatternIndex &&
            _project.selectedTrack().trackMode() == _boundTrackMode;
 }
 
@@ -337,6 +339,13 @@ void GeneratorPage::enter() {
     _chaosCursor = 0;
     _previewArmed = false;
     _launchpadResetState = false;
+    _permutationParam = 0;
+
+    if (permutationActive()) {
+        _section = _project.selectedNoteSequence().section();
+        _generator->showOriginal();
+        return;
+    }
 
     switch (_project.selectedTrack().trackMode()) {
     case Track::TrackMode::Note:
@@ -345,10 +354,6 @@ void GeneratorPage::enter() {
     case Track::TrackMode::Curve:
         _section = _project.selectedCurveSequence().section();
         break;
-    case Track::TrackMode::Logic:
-        _section = _project.selectedLogicSequence().section();
-        break;
-    case Track::TrackMode::Stochastic:
     case Track::TrackMode::Arp:
         if (_stepSelection && !_stepSelection->none()) {
             _section = _stepSelection->first() / StepCount;
@@ -382,7 +387,6 @@ void GeneratorPage::exit() {
 
 int GeneratorPage::previewStepCount() const {
     switch (_project.selectedTrack().trackMode()) {
-    case Track::TrackMode::Stochastic:
     case Track::TrackMode::Arp:
         return 12;
     default:
@@ -402,16 +406,6 @@ int GeneratorPage::currentStep() const {
         const auto &sequence = _project.selectedCurveSequence();
         return trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
     }
-    case Track::TrackMode::Logic: {
-        const auto &trackEngine = _engine.selectedTrackEngine().as<LogicTrackEngine>();
-        const auto &sequence = _project.selectedLogicSequence();
-        return trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
-    }
-    case Track::TrackMode::Stochastic: {
-        const auto &trackEngine = _engine.selectedTrackEngine().as<StochasticEngine>();
-        const auto &sequence = _project.selectedStochasticSequence();
-        return trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
-    }
     case Track::TrackMode::Arp: {
         const auto &trackEngine = _engine.selectedTrackEngine().as<ArpTrackEngine>();
         const auto &sequence = _project.selectedArpSequence();
@@ -427,6 +421,33 @@ bool GeneratorPage::stepInCurrentBank(int step) const {
 }
 
 void GeneratorPage::draw(Canvas &canvas) {
+    if (permutationActive()) {
+        const auto &permutation = *static_cast<const PermutationGenerator *>(_generator);
+        const char *functions[] = { "A/B", nullptr, "NEW", "CANCEL", "APPLY" };
+        WindowPainter::clear(canvas);
+        WindowPainter::drawHeader(canvas, _model, _engine, "GENERATOR");
+        WindowPainter::drawActiveFunction(canvas, "PERMUTATION");
+        WindowPainter::drawFooter(canvas, functions, pageKeyState());
+        canvas.setFont(Font::Tiny);
+        canvas.setColor(Color::Bright);
+        canvas.drawText(4, 14, FixedStringBuilder<16>("P%d  TRACKS:", _boundPatternIndex + 1));
+        for (int track = 0; track < CONFIG_TRACK_COUNT; ++track) {
+            canvas.setColor(permutation.trackEnabled(track) ? Color::Bright : Color::MediumLow);
+            canvas.drawText(104 + track * 18, 14, FixedStringBuilder<8>("%d", track + 1));
+        }
+        canvas.setColor(Color::Bright);
+        canvas.drawText(4, 24, FixedStringBuilder<24>("%c MOVE   +/- %d", _permutationParam == 0 ? '>' : ' ', permutation.move()));
+        canvas.drawText(4, 33, FixedStringBuilder<24>("%c PITCH  +/- %d", _permutationParam == 1 ? '>' : ' ', permutation.pitch()));
+        canvas.drawText(4, 42, FixedStringBuilder<24>("%c AMOUNT %d%%", _permutationParam == 2 ? '>' : ' ', permutation.amount()));
+        canvas.drawText(150, 42, _generator->showingPreview() ? "PERMUTED" : "ORIGINAL");
+        const auto &sequence = _project.selectedNoteSequence();
+        for (int step = sequence.firstStep(); step <= sequence.lastStep(); ++step) {
+            if (sequence.step(step).gate()) {
+                canvas.fillRect(step * 4, 46, 3, 3);
+            }
+        }
+        return;
+    }
     FixedStringBuilder<24> activeFunction;
     switch (_generator->mode()) {
     case Generator::Mode::Acid: {
@@ -658,6 +679,8 @@ void GeneratorPage::draw(Canvas &canvas) {
     case Generator::Mode::ChaosEntropy:
         drawChaosEntropyGenerator(canvas, *static_cast<const ChaosEntropyGenerator *>(_generator));
         break;
+    case Generator::Mode::Permutation:
+        break;
     case Generator::Mode::Last:
         break;
     }
@@ -691,18 +714,6 @@ void GeneratorPage::updateLeds(Leds &leds) {
                 }
             }
             break;
-        case Track::TrackMode::Stochastic: {
-                const auto &trackEngine = _engine.selectedTrackEngine().as<StochasticEngine>();
-                const auto &sequence = _project.selectedStochasticSequence();
-                currentStep = trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
-                for (int i = 0; i < 12; ++i) {
-                    int stepIndex = stepOffset() + i;
-                    bool red = (stepIndex == currentStep) || _stepSelection->at(stepIndex);
-                    bool green = (stepIndex != currentStep) && (sequence.step(stepIndex).gate() || _stepSelection->at(stepIndex));
-                    leds.set(MatrixMap::fromStep(i), red, green);
-                }
-            }
-            break;    
         case Track::TrackMode::Arp: {
                 const auto &trackEngine = _engine.selectedTrackEngine().as<ArpTrackEngine>();
                 const auto &sequence = _project.selectedArpSequence();
@@ -715,19 +726,6 @@ void GeneratorPage::updateLeds(Leds &leds) {
                 }
             }
             break;  
-        case Track::TrackMode::Logic: {
-                const auto &trackEngine = _engine.selectedTrackEngine().as<LogicTrackEngine>();
-                const auto &sequence = _project.selectedLogicSequence();
-                currentStep = trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
-                for (int i = 0; i < 16; ++i) {
-                    int stepIndex = stepOffset() + i;
-                    bool red = (stepIndex == currentStep) || _stepSelection->at(stepIndex);
-                    bool green = (stepIndex != currentStep) && (sequence.step(stepIndex).gate() || _stepSelection->at(stepIndex));
-                    leds.set(MatrixMap::fromStep(i), red, green);
-                }
-            }
-            break;
-
         default:
             return;
     }
@@ -736,10 +734,12 @@ void GeneratorPage::updateLeds(Leds &leds) {
 }
 
 void GeneratorPage::keyDown(KeyEvent &event) {
+    if (permutationActive()) return;
     _stepSelection->keyDown(event, stepOffset());
 }
 
 void GeneratorPage::keyUp(KeyEvent &event) {
+    if (permutationActive()) return;
     _stepSelection->keyUp(event, stepOffset());
 }
 
@@ -750,6 +750,33 @@ void GeneratorPage::keyPress(KeyPressEvent &event) {
     };
 
     if (!ensureBoundTrackContext()) {
+        event.consume();
+        return;
+    }
+
+    if (permutationActive()) {
+        if (key.isPlay()) {
+            if (key.pageModifier()) _engine.toggleRecording();
+            else _engine.togglePlay(key.shiftModifier());
+        } else if (key.isTrackSelect()) {
+            togglePermutationTrack(key.trackSelect());
+        } else if (key.isLeft()) {
+            _permutationParam = (_permutationParam + 2) % 3;
+        } else if (key.isRight()) {
+            _permutationParam = (_permutationParam + 1) % 3;
+        } else if (key.isEncoder()) {
+            launchpadRandomize();
+        } else if (key.isFunction()) {
+            switch (key.function()) {
+            case 0: togglePreview(); break;
+            case 2: launchpadRandomize(); break;
+            case 3: revert(); break;
+            case 4: commit(); break;
+            default: break;
+            }
+        } else if (!key.isTempo() && !key.isPage() && !key.isShift()) {
+            revert();
+        }
         event.consume();
         return;
     }
@@ -999,6 +1026,15 @@ void GeneratorPage::keyPress(KeyPressEvent &event) {
 }
 
 void GeneratorPage::encoder(EncoderEvent &event) {
+    if (permutationActive()) {
+        if (event.value() != 0) {
+            _generator->editParam(_permutationParam + 1, event.value(), event.pressed());
+            _generator->showOriginal();
+            _previewArmed = false;
+            _launchpadResetState = true;
+        }
+        return;
+    }
     if (!ensureBoundTrackContext()) {
         return;
     }
@@ -2002,6 +2038,18 @@ bool GeneratorPage::commit() {
         return false;
     }
 
+    if (permutationActive()) {
+        const auto &permutation = *static_cast<const PermutationGenerator *>(_generator);
+        if (permutation.trackMask() == 0) {
+            showMessage("SELECT TRACK");
+            return false;
+        }
+        if (!_previewArmed || !_generator->showingPreview()) {
+            showMessage("PRESS NEW");
+            return false;
+        }
+    }
+
     if (chaosStyledGeneratorMode(_generator->mode()) && (!_previewArmed || !_generator->showingPreview())) {
         showMessage("PRESS CHAOS");
         return false;
@@ -2022,12 +2070,6 @@ bool GeneratorPage::commit() {
     if (pages.curveSequenceEdit.launchpadGeneratorModeActive()) {
         pages.curveSequenceEdit.setLaunchpadGeneratorModeActive(false);
     }
-    if (pages.stochasticSequenceEdit.launchpadGeneratorModeActive()) {
-        pages.stochasticSequenceEdit.setLaunchpadGeneratorModeActive(false);
-    }
-    if (pages.logicSequenceEdit.launchpadGeneratorModeActive()) {
-        pages.logicSequenceEdit.setLaunchpadGeneratorModeActive(false);
-    }
     if (pages.arpSequenceEdit.launchpadGeneratorModeActive()) {
         pages.arpSequenceEdit.setLaunchpadGeneratorModeActive(false);
     }
@@ -2037,6 +2079,11 @@ bool GeneratorPage::commit() {
 
 void GeneratorPage::togglePreview() {
     if (!ensureBoundTrackContext()) {
+        return;
+    }
+
+    if (permutationActive() && !_previewArmed) {
+        showMessage("PRESS NEW");
         return;
     }
 
@@ -2090,6 +2137,20 @@ void GeneratorPage::launchpadRandomize() {
         return;
     }
 
+    if (permutationActive()) {
+        auto *permutation = static_cast<PermutationGenerator *>(_generator);
+        if (permutation->trackMask() == 0) {
+            showMessage("SELECT TRACK");
+            return;
+        }
+        permutation->randomizeSeed();
+        _previewArmed = true;
+        _generator->showPreview();
+        _launchpadResetState = false;
+        showMessage("PERMUTED");
+        return;
+    }
+
     if (chaosStyledGeneratorMode(_generator->mode())) {
         triggerChaosPreview();
         return;
@@ -2125,7 +2186,9 @@ void GeneratorPage::launchpadRandomize() {
 }
 
 void GeneratorPage::showPreviewStateMessage() {
-    if (chaosGeneratorMode(_generator->mode())) {
+    if (permutationActive()) {
+        showMessage("PERMUTED");
+    } else if (chaosGeneratorMode(_generator->mode())) {
         const auto *chaos = static_cast<const ChaosGenerator *>(_generator);
         showMessage(chaos->patternScope() ? "WRECKED" : "VANDALIZED");
     } else if (entropyGeneratorMode(_generator->mode())) {
@@ -2143,6 +2206,31 @@ bool GeneratorPage::launchpadShowingPreview() const {
 
 bool GeneratorPage::launchpadResetState() const {
     return _launchpadResetState;
+}
+
+bool GeneratorPage::permutationActive() const {
+    return _generator && _generator->mode() == Generator::Mode::Permutation;
+}
+
+bool GeneratorPage::permutationTrackAvailable(int trackIndex) const {
+    return permutationActive() && static_cast<const PermutationGenerator *>(_generator)->trackAvailable(trackIndex);
+}
+
+bool GeneratorPage::permutationTrackEnabled(int trackIndex) const {
+    return permutationActive() && static_cast<const PermutationGenerator *>(_generator)->trackEnabled(trackIndex);
+}
+
+void GeneratorPage::togglePermutationTrack(int trackIndex) {
+    if (!permutationActive() || !ensureBoundTrackContext()) return;
+    auto *permutation = static_cast<PermutationGenerator *>(_generator);
+    if (!permutation->trackAvailable(trackIndex)) {
+        showMessage("NOTE TRACKS ONLY");
+        return;
+    }
+    permutation->toggleTrack(trackIndex);
+    _generator->showOriginal();
+    _previewArmed = false;
+    _launchpadResetState = true;
 }
 
 bool GeneratorPage::launchpadTrackRetargetLocked() const {

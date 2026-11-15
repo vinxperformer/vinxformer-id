@@ -12,6 +12,9 @@
 #include "model/NoteSequence.h"
 #include "model/Scale.h"
 #include "ui/MatrixMap.h"
+#if defined(PLATFORM_SIM)
+#include "EngineTestHooks.h"
+#endif
 #include <climits>
 #include <ctime>
 
@@ -86,7 +89,7 @@ static float evalStepNote(const NoteSequence::Step &step, int probabilityBias, c
             }
             note = NoteSequence::Note::clamp(note + offset);
         }
-        return bypassScale.noteToVolts(note) + (bypassScale.isChromatic() ? rootNote : 0) * (1.f / 12.f);
+        return bypassScale.noteToVolts(note) + bypassScale.rootNoteToVolts(rootNote);
     }
     int note = step.note() + evalTransposition(scale, octave, transpose);
     int probability = clamp(step.noteVariationProbability() + probabilityBias, -1, NoteSequence::NoteVariationProbability::Max);
@@ -97,8 +100,14 @@ static float evalStepNote(const NoteSequence::Step &step, int probabilityBias, c
         }
         note = NoteSequence::Note::clamp(note + offset);
     }
-    return scale.noteToVolts(note) + (scale.isChromatic() ? rootNote : 0) * (1.f / 12.f);
+    return scale.noteToVolts(note) + scale.rootNoteToVolts(rootNote);
 }
+
+#if defined(PLATFORM_SIM)
+float EngineTestHooks::evalNoteStepNoteForScale(const NoteSequence::Step &step, int probabilityBias, const Scale &scale, int rootNote, int octave, int transpose, bool useVariation) {
+    return evalStepNote(step, probabilityBias, scale, rootNote, octave, transpose, useVariation);
+}
+#endif
 
 void NoteTrackEngine::reset() {
     _freeRelativeTick = 0;
@@ -325,7 +334,7 @@ void NoteTrackEngine::update(float dt) {
         setOverride(evalStepNote(step, 0, scale, rootNote, octave, transpose, false));
     } else if (liveMonitoring && _recordHistory.isNoteActive()) {
         int note = noteFromMidiNote(_recordHistory.activeNote()) + evalTransposition(scale, octave, transpose);
-        setOverride(scale.noteToVolts(note) + (scale.isChromatic() ? rootNote : 0) * (1.f / 12.f));
+        setOverride(scale.noteToVolts(note) + scale.rootNoteToVolts(rootNote));
     } else {
         clearOverride();
     }
@@ -558,11 +567,7 @@ int NoteTrackEngine::noteFromMidiNote(uint8_t midiNote) const {
     float semitoneVolts = octaveVolts * (1.f / 12.f);
     float volts = (int(midiNote) - 60) * semitoneVolts;
 
-    if (scale.isChromatic()) {
-        volts -= rootNote * semitoneVolts;
-    } else {
-        // Non-chromatic scales ignore root-note transposition here, matching the existing behavior.
-    }
+    volts -= scale.rootNoteToVolts(rootNote);
 
     return scale.noteFromVolts(volts);
 }

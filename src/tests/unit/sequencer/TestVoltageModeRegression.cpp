@@ -1,6 +1,6 @@
 #include "UnitTest.h"
-
 #include "apps/sequencer/engine/EngineTestHooks.h"
+
 #include "apps/sequencer/model/Project.h"
 #include "apps/sequencer/model/Scale.h"
 #include "apps/sequencer/model/UserScale.h"
@@ -45,6 +45,55 @@ bool almostEqual(float a, float b, float eps = 0.0001f) {
 } // namespace
 
 UNIT_TEST("VoltageModeRegression") {
+    CASE("Project root stays fixed across musical scales including 22-tet") {
+        Project project;
+        project.clear();
+        project.setTrackMode(0, Track::TrackMode::Note);
+        auto &sequence = project.noteSequence(0, 0);
+        sequence.setScale(-1);
+        sequence.setRootNote(-1);
+        auto &step = sequence.step(0);
+        step.setNote(0);
+        step.setNoteVariationProbability(0);
+
+        for (int root : {0, 2}) { // C and D
+            project.setRootNote(root);
+            for (const char *name : {"Minor", "22-tet", "Gypsy", "Arabian", "Major Blues", "Minor"}) {
+                const int scaleIndex = findScaleIndexByName(name);
+                expectTrue(scaleIndex >= 0);
+                project.setScale(scaleIndex);
+                expectEqual(project.rootNote(), root);
+                expectEqual(sequence.selectedRootNote(project.rootNote()), root);
+                const float volts = EngineTestHooks::evalNoteStepNoteForScale(
+                    step, 0, sequence.selectedScale(project.scale()), project.rootNote(), 0, 0, false);
+                expectTrue(almostEqual(volts, root / 12.f));
+                expectEqual(step.note(), 0);
+            }
+        }
+    }
+
+    CASE("Arp root transposes 22-tet but Voltage remains untransposed") {
+        Project project;
+        project.clear();
+        project.setTrackMode(0, Track::TrackMode::Arp);
+        auto &sequence = project.arpSequence(0, 0);
+        auto &step = sequence.step(0);
+        step.clear();
+        step.setNote(0);
+        step.setNoteVariationProbability(0);
+        step.setNoteOctaveProbability(0);
+        const int tetIndex = findScaleIndexByName("22-tet");
+        const int voltageIndex = findScaleIndexByName("Voltage");
+        expectTrue(tetIndex >= 0 && voltageIndex >= 0);
+
+        const float tetVolts = EngineTestHooks::evalArpStepNoteForScale(
+            step, 0, Scale::get(tetIndex), 2, 0, 0, sequence, false);
+        const float voltageVolts = EngineTestHooks::evalArpStepNoteForScale(
+            step, 0, Scale::get(voltageIndex), 2, 0, 0, sequence, false);
+        expectTrue(almostEqual(tetVolts, 2.f / 12.f));
+        expectTrue(almostEqual(voltageVolts, 0.f));
+    }
+
     CASE("Built-in Voltage scale uses 1.2V octave span with 0.1V steps") {
         const int voltageScaleIndex = findScaleIndexByName("Voltage");
         expectTrue(voltageScaleIndex >= 0);
@@ -200,151 +249,6 @@ UNIT_TEST("VoltageModeRegression") {
         expectTrue(!almostEqual(actual, expectedChromaticRootShift));
     }
 
-    CASE("Stochastic bypass does not force semitone scale on non-chromatic user voltage scale") {
-        Project project;
-        project.clear();
-        project.setSelectedTrackIndex(0);
-        project.setSelectedPatternIndex(0);
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
-
-        const int voltageScaleIndex = configureVoltageUserScale(project, "VOLT_REG_STOCH");
-        expectTrue(voltageScaleIndex >= 0);
-
-        auto &sequence = project.selectedStochasticSequence();
-        sequence.setScale(voltageScaleIndex);
-        sequence.setRootNote(9);
-
-        auto &step = sequence.step(0);
-        step.clear();
-        step.setNote(1);
-        step.setBypassScale(true);
-        step.setNoteOctaveProbability(0);
-        step.setNoteVariationProbability(0);
-
-        const auto &scale = sequence.selectedScale(project.scale());
-        const int rootNote = sequence.selectedRootNote(project.rootNote());
-
-        float actual = EngineTestHooks::evalStochasticStepNoteForScale(step, 0, scale, rootNote, 0, 0, sequence, false);
-        float expectedScale = scale.noteToVolts(step.note());
-        float expectedSemitone = Scale::get(0).noteToVolts(step.note());
-
-        expectTrue(almostEqual(actual, expectedScale));
-        expectTrue(!almostEqual(actual, expectedSemitone));
-    }
-
-    CASE("Stochastic selected minor pentatonic scale converts legacy semitone slots to scale degrees") {
-        Project project;
-        project.clear();
-        project.setSelectedTrackIndex(0);
-        project.setSelectedPatternIndex(0);
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
-
-        const int minorPentatonicIndex = findScaleIndexByName("Minor Pent.");
-        expectTrue(minorPentatonicIndex >= 0);
-
-        auto &sequence = project.selectedStochasticSequence();
-        sequence.setScale(minorPentatonicIndex);
-        sequence.setRootNote(0);
-
-        auto &step = sequence.step(0);
-        step.clear();
-        step.setNote(3); // Eb is semitone slot 3, scale degree 1 in C minor pentatonic.
-        step.setBypassScale(true);
-        step.setNoteOctaveProbability(0);
-        step.setNoteVariationProbability(0);
-
-        const auto &scale = sequence.selectedScale(project.scale());
-        float actual = EngineTestHooks::evalStochasticStepNoteForScale(step, 0, scale, 0, 0, 0, sequence, false);
-        float expectedSelectedScale = scale.noteToVolts(1);
-        float wrongScaleDegreeInterpretation = scale.noteToVolts(step.note());
-
-        expectTrue(almostEqual(actual, expectedSelectedScale));
-        expectTrue(!almostEqual(actual, wrongScaleDegreeInterpretation));
-    }
-
-    CASE("Stochastic selected minor pentatonic scale masks off-scale legacy semitone slots") {
-        Project project;
-        project.clear();
-        project.setSelectedTrackIndex(0);
-        project.setSelectedPatternIndex(0);
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
-
-        const int minorPentatonicIndex = findScaleIndexByName("Minor Pent.");
-        expectTrue(minorPentatonicIndex >= 0);
-
-        auto &sequence = project.selectedStochasticSequence();
-        sequence.setScale(minorPentatonicIndex);
-
-        auto &offScaleStep = sequence.step(1);
-        offScaleStep.clear();
-        offScaleStep.setNote(1); // C# is not present in C minor pentatonic.
-        offScaleStep.setBypassScale(true);
-
-        auto &inScaleStep = sequence.step(3);
-        inScaleStep.clear();
-        inScaleStep.setNote(3); // Eb is present.
-        inScaleStep.setBypassScale(true);
-
-        const auto &scale = sequence.selectedScale(project.scale());
-        expectTrue(!EngineTestHooks::stochasticPitchSlotActiveForScale(offScaleStep, 1, scale));
-        expectTrue(EngineTestHooks::stochasticPitchSlotActiveForScale(inScaleStep, 3, scale));
-    }
-
-    CASE("Stochastic semitones scale keeps explicit chromatic behavior") {
-        Project project;
-        project.clear();
-        project.setSelectedTrackIndex(0);
-        project.setSelectedPatternIndex(0);
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
-
-        auto &sequence = project.selectedStochasticSequence();
-        sequence.setScale(0); // Semitones
-        sequence.setRootNote(0);
-
-        auto &step = sequence.step(0);
-        step.clear();
-        step.setNote(1);
-        step.setBypassScale(true);
-        step.setNoteOctaveProbability(0);
-        step.setNoteVariationProbability(0);
-
-        const auto &scale = sequence.selectedScale(project.scale());
-        float actual = EngineTestHooks::evalStochasticStepNoteForScale(step, 0, scale, 0, 0, 0, sequence, false);
-        float expectedSemitone = Scale::get(0).noteToVolts(step.note());
-
-        expectTrue(almostEqual(actual, expectedSemitone));
-    }
-
-    CASE("Stochastic routed transpose stays inside selected minor pentatonic scale") {
-        Project project;
-        project.clear();
-        project.setSelectedTrackIndex(0);
-        project.setSelectedPatternIndex(0);
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
-
-        const int minorPentatonicIndex = findScaleIndexByName("Minor Pent.");
-        expectTrue(minorPentatonicIndex >= 0);
-
-        auto &sequence = project.selectedStochasticSequence();
-        sequence.setScale(minorPentatonicIndex);
-        sequence.setRootNote(0);
-
-        auto &step = sequence.step(0);
-        step.clear();
-        step.setNote(3); // Eb
-        step.setBypassScale(true);
-        step.setNoteOctaveProbability(0);
-        step.setNoteVariationProbability(0);
-
-        const auto &scale = sequence.selectedScale(project.scale());
-        float actual = EngineTestHooks::evalStochasticStepNoteForScale(step, 0, scale, 0, 0, 1, sequence, false, true);
-        float expectedScale = scale.noteToVolts(2); // Eb slot converted to degree 1, then transposed to degree 2.
-        float expectedChromaticRootShift = Scale::get(0).noteToVolts(4);
-
-        expectTrue(almostEqual(actual, expectedScale));
-        expectTrue(!almostEqual(actual, expectedChromaticRootShift));
-    }
-
     CASE("Arp octave transposition on built-in Voltage advances by 1.2V") {
         Project project;
         project.clear();
@@ -371,29 +275,5 @@ UNIT_TEST("VoltageModeRegression") {
         expectTrue(almostEqual(actual, 1.2f));
     }
 
-    CASE("Stochastic octave transposition on built-in Voltage advances by 1.2V") {
-        Project project;
-        project.clear();
-        project.setSelectedTrackIndex(0);
-        project.setSelectedPatternIndex(0);
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
 
-        const int voltageScaleIndex = findScaleIndexByName("Voltage");
-        expectTrue(voltageScaleIndex >= 0);
-
-        auto &sequence = project.selectedStochasticSequence();
-        sequence.setScale(voltageScaleIndex);
-        sequence.setRootNote(0);
-
-        auto &step = sequence.step(0);
-        step.clear();
-        step.setNote(0);
-        step.setBypassScale(false);
-        step.setNoteOctaveProbability(0);
-        step.setNoteVariationProbability(0);
-
-        const auto &scale = sequence.selectedScale(project.scale());
-        float actual = EngineTestHooks::evalStochasticStepNoteForScale(step, 0, scale, 0, 1, 0, sequence, false);
-        expectTrue(almostEqual(actual, 1.2f));
-    }
 }

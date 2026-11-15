@@ -144,43 +144,27 @@ public:
 
     // scale
 
-    int scale() const { return _scale; }
+    int scale() const { return _performanceScale >= 0 ? _performanceScale : _scale; }
+    int storedScale() const { return _scale; }
+    bool performanceScaleActive() const { return _performanceScale >= 0; }
     void setScale(int s) {
-        int previousScaleIndex = clamp(scale(), 0, Scale::Count - 1);
-        int newScaleIndex = clamp(s, 0, Scale::Count - 1);
+        // Sequence notes are scale degrees. Changing the project scale changes
+        // their interpretation during playback, not the saved step data.
+        _scale = clamp(s, 0, Scale::Count - 1);
+        _performanceScale = -1;
+    }
 
-        auto &pScale = Scale::get(previousScaleIndex);
-        auto &aScale = Scale::get(newScaleIndex);
+    int randomizePerformanceScale(uint32_t randomValue) {
+        const int current = scale();
+        const int count = Scale::MusicalPresetCount;
+        int choice = int(randomValue % (current < count ? count - 1 : count));
+        if (current < count && choice >= current) ++choice;
+        _performanceScale = choice;
+        return choice;
+    }
 
-        _scale = newScaleIndex;
-
-        if (pScale == aScale) {
-            return;
-        }
-
-        if (aScale.isChromatic() && pScale.isChromatic()) {
-            for (int trackIndex = 0; trackIndex < 8; ++trackIndex) {
-                auto &t = track(trackIndex);
-                switch (t.trackMode()) {
-                case Track::TrackMode::Note: {
-                    for (auto &seq : t.noteTrack().sequences()) {
-                        if (seq.scale() == -1) {
-                            for (int i = 0; i < 64; ++i) {
-                                auto &step = seq.step(i);
-                                float volts = pScale.noteToVolts(step.note());
-                                int remapped = NoteSequence::Note::clamp(aScale.noteFromVolts(volts));
-                                step.setNote(remapped);
-                            }
-                        }
-                    }
-                    break;
-                }
-                default:
-                    break;
-                }
-            }
-        }
-        
+    void restorePerformanceScale() {
+        _performanceScale = -1;
     }
 
     void editScale(int value, bool shift) {
@@ -574,16 +558,6 @@ public:
     NoteSequence::Layer selectedNoteSequenceLayer() const { return _selectedNoteSequenceLayer; }
     void setSelectedNoteSequenceLayer(NoteSequence::Layer layer) { _selectedNoteSequenceLayer = layer; }
 
-    // selectedStochasticSequenceLayer
-
-    StochasticSequence::Layer selectedStochasticSequenceLayer() const { return _selectedStochasticSequenceLayer; }
-    void setSelectedStochasticSequenceLayer(StochasticSequence::Layer layer) { _selectedStochasticSequenceLayer = layer; }
-
-    // selectedLogicSequenceLayer
-
-    LogicSequence::Layer selectedLogicSequenceLayer() const { return _selectedLogicSequenceLayer; }
-    void setSelectedLogicSequenceLayer(LogicSequence::Layer layer) { _selectedLogicSequenceLayer = layer; }
-
     // selectedArpSequenceLayer
 
     ArpSequence::Layer selectedArpSequenceLayer() const { return _selectedArpSequenceLayer; }
@@ -626,30 +600,6 @@ public:
 
     const CurveSequence &selectedCurveSequence() const { return curveSequence(_selectedTrackIndex, selectedPatternIndex()); }
           CurveSequence &selectedCurveSequence()       { return curveSequence(_selectedTrackIndex, selectedPatternIndex()); }
-
-    // stochasticSequence
-
-    const StochasticSequence &stochasticSequence(int trackIndex, int patternIndex) const { return _tracks[trackIndex].stochasticTrack().sequence(patternIndex); }
-          StochasticSequence &stochasticSequence(int trackIndex, int patternIndex)       { return _tracks[trackIndex].stochasticTrack().sequence(patternIndex); }
-
-    // selectedStochasticSequence
-
-    const StochasticSequence &selectedStochasticSequence() const { return stochasticSequence(_selectedTrackIndex, selectedPatternIndex()); }
-          StochasticSequence &selectedStochasticSequence()       { return stochasticSequence(_selectedTrackIndex, selectedPatternIndex()); }
-
-    // logicSequence
-    
-    const LogicSequence &logicSequence(int trackIndex, int patternIndex) const { return _tracks[trackIndex].logicTrack().sequence(patternIndex); }
-          LogicSequence &logicSequence(int trackIndex, int patternIndex)       { return _tracks[trackIndex].logicTrack().sequence(patternIndex); }
-
-    // selectedLogicSequence
-
-    const LogicSequence &selectedLogicSequence() const { return logicSequence(_selectedTrackIndex, selectedPatternIndex()); }
-          LogicSequence &selectedLogicSequence()       { return logicSequence(_selectedTrackIndex, selectedPatternIndex()); }
-
-    void setselectedLogicSequence(LogicSequence seq) {
-        _tracks[_selectedTrackIndex].logicTrack().setSequence(selectedPatternIndex(), seq);
-    }
 
     // arpSequence
     
@@ -711,6 +661,7 @@ private:
     TimeSignature _timeSignature;
     uint8_t _syncMeasure = 1;
     uint8_t _scale = 0;
+    int8_t _performanceScale = -1;
     uint8_t _rootNote = 0;
     Types::RecordMode _recordMode = Types::RecordMode::Overdub;
     Types::MonitorMode _monitorMode = Types::MonitorMode::Always;
@@ -743,8 +694,6 @@ private:
     char _selectedTrackName[FileHeader::NameLength+1] = "";
     NoteSequence::Layer _selectedNoteSequenceLayer = NoteSequence::Layer(0);
     CurveSequence::Layer _selectedCurveSequenceLayer = CurveSequence::Layer(0);
-    StochasticSequence::Layer _selectedStochasticSequenceLayer = StochasticSequence::Layer(10);
-    LogicSequence::Layer _selectedLogicSequenceLayer = LogicSequence::Layer(0);
     ArpSequence::Layer _selectedArpSequenceLayer = ArpSequence::Layer(0);
 
     Observable<Event, 2> _observable;

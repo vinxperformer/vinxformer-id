@@ -6,9 +6,7 @@
 #include "ui/pages/Pages.h"
 #include "ui/pages/ArpSequenceEditPage.h"
 #include "ui/pages/CurveSequenceEditPage.h"
-#include "ui/pages/LogicSequenceEditPage.h"
 #include "ui/pages/NoteSequenceEditPage.h"
-#include "ui/pages/StochasticSequenceEditPage.h"
 
 namespace {
 bool noteGeneratorMapping(Track::TrackMode mode) {
@@ -20,8 +18,6 @@ bool LaunchpadController::generatorModeTrackSupported(Track::TrackMode mode) con
     switch (mode) {
     case Track::TrackMode::Note:
     case Track::TrackMode::Curve:
-    case Track::TrackMode::Stochastic:
-    case Track::TrackMode::Logic:
     case Track::TrackMode::Arp:
         return true;
     default:
@@ -46,12 +42,6 @@ bool LaunchpadController::stepEditPageGeneratorModeActive() const {
     }
     if (top == &pages->curveSequenceEdit || top == &pages->curveSequence) {
         return pages->curveSequenceEdit.launchpadGeneratorModeActive();
-    }
-    if (top == &pages->stochasticSequenceEdit || top == &pages->stochasticSequence) {
-        return pages->stochasticSequenceEdit.launchpadGeneratorModeActive();
-    }
-    if (top == &pages->logicSequenceEdit || top == &pages->logicSequence) {
-        return pages->logicSequenceEdit.launchpadGeneratorModeActive();
     }
     if (top == &pages->arpSequenceEdit || top == &pages->arpSequence) {
         return pages->arpSequenceEdit.launchpadGeneratorModeActive();
@@ -80,10 +70,6 @@ bool LaunchpadController::generatorModeEditPage() const {
            top == &pages->noteSequence ||
            top == &pages->curveSequenceEdit ||
            top == &pages->curveSequence ||
-           top == &pages->stochasticSequenceEdit ||
-           top == &pages->stochasticSequence ||
-           top == &pages->logicSequenceEdit ||
-           top == &pages->logicSequence ||
            top == &pages->arpSequenceEdit ||
            top == &pages->arpSequence;
 }
@@ -226,6 +212,8 @@ LaunchpadController::LaunchpadGenerator LaunchpadController::generatorModeGrid(i
             return LaunchpadGenerator::Wreck;
         case 3:
             return LaunchpadGenerator::Euclidean;
+        case 4:
+            return LaunchpadGenerator::Permutation;
         case 7:
             return LaunchpadGenerator::InitLayer;
         case 15:
@@ -259,8 +247,6 @@ void LaunchpadController::setGeneratorMode(bool active) {
     if (auto *pages = _manager.pages()) {
         pages->noteSequenceEdit.setLaunchpadGeneratorModeActive(false);
         pages->curveSequenceEdit.setLaunchpadGeneratorModeActive(false);
-        pages->stochasticSequenceEdit.setLaunchpadGeneratorModeActive(false);
-        pages->logicSequenceEdit.setLaunchpadGeneratorModeActive(false);
         pages->arpSequenceEdit.setLaunchpadGeneratorModeActive(false);
 
         if (!active) {
@@ -276,6 +262,7 @@ void LaunchpadController::setGeneratorMode(bool active) {
                 case LaunchpadGenerator::AcidEuclideanPhrase:
                 case LaunchpadGenerator::Vandalize:
                 case LaunchpadGenerator::Wreck:
+                case LaunchpadGenerator::Permutation:
                 case LaunchpadGenerator::Euclidean:
                 case LaunchpadGenerator::InitLayer:
                 case LaunchpadGenerator::InitSteps:
@@ -307,12 +294,6 @@ void LaunchpadController::setGeneratorMode(bool active) {
             break;
         case Track::TrackMode::Curve:
             pages->curveSequenceEdit.setLaunchpadGeneratorModeActive(true);
-            break;
-        case Track::TrackMode::Stochastic:
-            pages->stochasticSequenceEdit.setLaunchpadGeneratorModeActive(true);
-            break;
-        case Track::TrackMode::Logic:
-            pages->logicSequenceEdit.setLaunchpadGeneratorModeActive(true);
             break;
         case Track::TrackMode::Arp:
             pages->arpSequenceEdit.setLaunchpadGeneratorModeActive(true);
@@ -346,6 +327,7 @@ void LaunchpadController::sequenceDrawGeneratorMode() {
         {0, 2, LaunchpadGenerator::Vandalize},
         {1, 2, LaunchpadGenerator::Wreck},
         {0, 3, LaunchpadGenerator::Euclidean},
+        {0, 4, LaunchpadGenerator::Permutation},
         {0, 7, LaunchpadGenerator::InitLayer},
         {1, 7, LaunchpadGenerator::InitSteps},
     };
@@ -365,6 +347,17 @@ void LaunchpadController::sequenceDrawGeneratorMode() {
     }
 
     bool previewPage = generatorModePreviewPage();
+    if (previewPage) {
+        if (auto *pages = _manager.pages()) {
+            if (pages->generator.permutationActive()) {
+                for (int track = 0; track < CONFIG_TRACK_COUNT; ++track) {
+                    setSceneLed(track, pages->generator.permutationTrackEnabled(track) ? colorGreen() :
+                        pages->generator.permutationTrackAvailable(track) ? colorYellow(1) : colorOff());
+                }
+            }
+        }
+    }
+
     bool showingPreview = false;
     bool resetState = false;
     if (previewPage) {
@@ -422,6 +415,14 @@ bool LaunchpadController::sequenceButtonGeneratorMode(const Button &button, Butt
     }
 
     if (button.isScene()) {
+        if (generatorModePreviewPage()) {
+            if (auto *pages = _manager.pages()) {
+                if (pages->generator.permutationActive()) {
+                    pages->generator.togglePermutationTrack(button.scene());
+                    return true;
+                }
+            }
+        }
         cancelGeneratorMode();
         _project.setSelectedTrackIndex(button.scene());
 
@@ -458,7 +459,8 @@ bool LaunchpadController::sequenceButtonGeneratorMode(const Button &button, Butt
     if (button.function() == 5) {
         if (generatorModePreviewPage()) {
             if (auto *pages = _manager.pages()) {
-                pages->generator.init();
+                if (pages->generator.permutationActive()) pages->generator.launchpadRandomize();
+                else pages->generator.init();
             }
         }
         return true;
@@ -500,48 +502,6 @@ void LaunchpadController::sequenceOpenGenerator(LaunchpadGenerator generator) {
                     break;
                 case LaunchpadGenerator::InitSteps:
                     pages->curveSequenceEdit.openLaunchpadGenerator(Generator::Mode::InitSteps);
-                    break;
-                default:
-                    break;
-                }
-                return;
-            case Track::TrackMode::Stochastic:
-                switch (generator) {
-                case LaunchpadGenerator::Random:
-                    pages->stochasticSequenceEdit.openLaunchpadGenerator(Generator::Mode::Random);
-                    break;
-                case LaunchpadGenerator::Entropy:
-                    pages->stochasticSequenceEdit.openLaunchpadGenerator(Generator::Mode::ChaosEntropy);
-                    break;
-                case LaunchpadGenerator::Euclidean:
-                    pages->stochasticSequenceEdit.openLaunchpadGenerator(Generator::Mode::Euclidean);
-                    break;
-                case LaunchpadGenerator::InitLayer:
-                    pages->stochasticSequenceEdit.openLaunchpadGenerator(Generator::Mode::InitLayer);
-                    break;
-                case LaunchpadGenerator::InitSteps:
-                    pages->stochasticSequenceEdit.openLaunchpadGenerator(Generator::Mode::InitSteps);
-                    break;
-                default:
-                    break;
-                }
-                return;
-            case Track::TrackMode::Logic:
-                switch (generator) {
-                case LaunchpadGenerator::Random:
-                    pages->logicSequenceEdit.openLaunchpadGenerator(Generator::Mode::Random);
-                    break;
-                case LaunchpadGenerator::Entropy:
-                    pages->logicSequenceEdit.openLaunchpadGenerator(Generator::Mode::ChaosEntropy);
-                    break;
-                case LaunchpadGenerator::Euclidean:
-                    pages->logicSequenceEdit.openLaunchpadGenerator(Generator::Mode::Euclidean);
-                    break;
-                case LaunchpadGenerator::InitLayer:
-                    pages->logicSequenceEdit.openLaunchpadGenerator(Generator::Mode::InitLayer);
-                    break;
-                case LaunchpadGenerator::InitSteps:
-                    pages->logicSequenceEdit.openLaunchpadGenerator(Generator::Mode::InitSteps);
                     break;
                 default:
                     break;
@@ -591,6 +551,9 @@ void LaunchpadController::sequenceOpenGenerator(LaunchpadGenerator generator) {
             break;
         case LaunchpadGenerator::Wreck:
             pages->noteSequenceEdit.openLaunchpadGenerator(NoteSequenceEditPage::LaunchpadGenerator::Wreck);
+            break;
+        case LaunchpadGenerator::Permutation:
+            pages->noteSequenceEdit.openLaunchpadGenerator(NoteSequenceEditPage::LaunchpadGenerator::Permutation);
             break;
         case LaunchpadGenerator::Entropy:
             break;

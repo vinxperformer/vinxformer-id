@@ -90,11 +90,9 @@ void register_project(py::module &m) {
         .def_property("selectedTrackIndex", &Project::selectedTrackIndex, &Project::setSelectedTrackIndex)
         .def_property("selectedPatternIndex", &Project::selectedPatternIndex, &Project::setSelectedPatternIndex)
         .def_property("selectedNoteSequenceLayer", &Project::selectedNoteSequenceLayer, &Project::setSelectedNoteSequenceLayer)
-        .def_property("selectedStochasticSequenceLayer", &Project::selectedStochasticSequenceLayer, &Project::setSelectedStochasticSequenceLayer)
         .def_property("selectedCurveSequenceLayer", &Project::selectedCurveSequenceLayer, &Project::setSelectedCurveSequenceLayer)
         .def_property("selectedArpSequenceLayer", &Project::selectedArpSequenceLayer, &Project::setSelectedArpSequenceLayer)
         .def_property_readonly("selectedNoteSequence", [] (Project &project) { return &project.selectedNoteSequence(); })
-        .def_property_readonly("selectedStochasticSequence", [] (Project &project) { return &project.selectedStochasticSequence(); })
         .def_property_readonly("selectedArpSequence", [] (Project &project) { return &project.selectedArpSequence(); })
         .def("clear", &Project::clear)
         .def("clearPattern", &Project::clearPattern, "patternIndex"_a)
@@ -285,8 +283,6 @@ void register_project(py::module &m) {
         .value("Note", Track::TrackMode::Note)
         .value("Curve", Track::TrackMode::Curve)
         .value("MidiCv", Track::TrackMode::MidiCv)
-        .value("Stochastic", Track::TrackMode::Stochastic)
-        .value("Logic", Track::TrackMode::Logic)
         .value("Arp", Track::TrackMode::Arp)
         .export_values()
     ;
@@ -329,88 +325,6 @@ void register_project(py::module &m) {
     py::enum_<NoteTrack::CvUpdateMode>(noteTrack, "CvUpdateMode")
         .value("Gate", NoteTrack::CvUpdateMode::Gate)
         .value("Always", NoteTrack::CvUpdateMode::Always)
-        .export_values()
-    ;
-
-    // ------------------------------------------------------------------------
-    // Stochastic Track
-    // ------------------------------------------------------------------------
-
-    py::class_<StochasticTrack> stochasticTrack(m, "StochasticTrack");
-    stochasticTrack
-        .def_property("playMode", &StochasticTrack::playMode, &StochasticTrack::setPlayMode)
-        .def_property("fillMode", &StochasticTrack::fillMode, &StochasticTrack::setFillMode)
-        .def_property("cvUpdateMode", &StochasticTrack::cvUpdateMode, &StochasticTrack::setCvUpdateMode)
-        .def_property("slideTime", &StochasticTrack::slideTime, &StochasticTrack::setSlideTime)
-        .def_property("octave", &StochasticTrack::octave, &StochasticTrack::setOctave)
-        .def_property("transpose", &StochasticTrack::transpose, &StochasticTrack::setTranspose)
-        .def_property("rotate", &StochasticTrack::rotate, &StochasticTrack::setRotate)
-        .def_property("gateProbabilityBias", &StochasticTrack::gateProbabilityBias, &StochasticTrack::setGateProbabilityBias)
-        .def_property("retriggerProbabilityBias", &StochasticTrack::retriggerProbabilityBias, &StochasticTrack::setRetriggerProbabilityBias)
-        .def_property("lengthBias", &StochasticTrack::lengthBias, &StochasticTrack::setLengthBias)
-        .def_property("noteProbabilityBias", &StochasticTrack::noteProbabilityBias, &StochasticTrack::setNoteProbabilityBias)
-        .def_property_readonly("sequences", [] (StochasticTrack &StochasticTrack) {
-            py::list result;
-            for (int i = 0; i < CONFIG_PATTERN_COUNT; ++i) {
-                result.append(&StochasticTrack.sequence(i));
-            }
-            return result;
-        })
-        .def("clear", &StochasticTrack::clear)
-    ;
-
-    py::enum_<StochasticTrack::FillMode>(stochasticTrack, "FillMode")
-        .value("None", StochasticTrack::FillMode::None)
-        .value("Gates", StochasticTrack::FillMode::Gates)
-        .value("NextPattern", StochasticTrack::FillMode::NextPattern)
-        .value("Condition", StochasticTrack::FillMode::Condition)
-        .export_values()
-    ;
-
-    py::enum_<StochasticTrack::CvUpdateMode>(stochasticTrack, "CvUpdateMode")
-        .value("Gate", StochasticTrack::CvUpdateMode::Gate)
-        .value("Always", StochasticTrack::CvUpdateMode::Always)
-        .export_values()
-    ;
-
-    // ------------------------------------------------------------------------
-    // Logic Track
-    // ------------------------------------------------------------------------
-
-    py::class_<LogicTrack> logicTrack(m, "LogicTrack");
-    logicTrack
-        .def_property("playMode", &LogicTrack::playMode, &LogicTrack::setPlayMode)
-        .def_property("fillMode", &LogicTrack::fillMode, &LogicTrack::setFillMode)
-        .def_property("cvUpdateMode", &LogicTrack::cvUpdateMode, &LogicTrack::setCvUpdateMode)
-        .def_property("slideTime", &LogicTrack::slideTime, &LogicTrack::setSlideTime)
-        .def_property("octave", &LogicTrack::octave, &LogicTrack::setOctave)
-        .def_property("transpose", &LogicTrack::transpose, &LogicTrack::setTranspose)
-        .def_property("rotate", &LogicTrack::rotate, &LogicTrack::setRotate)
-        .def_property("gateProbabilityBias", &LogicTrack::gateProbabilityBias, &LogicTrack::setGateProbabilityBias)
-        .def_property("retriggerProbabilityBias", &LogicTrack::retriggerProbabilityBias, &LogicTrack::setRetriggerProbabilityBias)
-        .def_property("lengthBias", &LogicTrack::lengthBias, &LogicTrack::setLengthBias)
-        .def_property("noteProbabilityBias", &LogicTrack::noteProbabilityBias, &LogicTrack::setNoteProbabilityBias)
-        .def_property_readonly("sequences", [] (LogicTrack &LogicTrack) {
-            py::list result;
-            for (int i = 0; i < CONFIG_PATTERN_COUNT; ++i) {
-                result.append(&LogicTrack.sequence(i));
-            }
-            return result;
-        })
-        .def("clear", &LogicTrack::clear)
-    ;
-
-    py::enum_<LogicTrack::FillMode>(logicTrack, "FillMode")
-        .value("None", LogicTrack::FillMode::None)
-        .value("Gates", LogicTrack::FillMode::Gates)
-        .value("NextPattern", LogicTrack::FillMode::NextPattern)
-        .value("Condition", LogicTrack::FillMode::Condition)
-        .export_values()
-    ;
-
-    py::enum_<LogicTrack::CvUpdateMode>(logicTrack, "CvUpdateMode")
-        .value("Gate", LogicTrack::CvUpdateMode::Gate)
-        .value("Always", LogicTrack::CvUpdateMode::Always)
         .export_values()
     ;
 
@@ -672,82 +586,6 @@ void register_project(py::module &m) {
         .def_property("gateOffset", &CurveSequence::Step::gateOffset, &CurveSequence::Step::setGateOffset)
         .def_property("gateLength", &CurveSequence::Step::gateLength, &CurveSequence::Step::setGateLength)
         .def("clear", &CurveSequence::Step::clear)
-    ;
-
-    // ------------------------------------------------------------------------
-    // StochasticSequence
-    // ------------------------------------------------------------------------
-
-    py::class_<StochasticSequence> stochasticSequence(m, "StochasticSequence");
-    stochasticSequence
-        .def_property("scale", &StochasticSequence::scale, &StochasticSequence::setScale)
-        .def_property("rootNote", &StochasticSequence::rootNote, &StochasticSequence::setRootNote)
-        .def_property("divisor", &StochasticSequence::divisor, &StochasticSequence::setDivisor)
-        .def_property("resetMeasure", &StochasticSequence::resetMeasure, &StochasticSequence::setResetMeasure)
-        .def_property("runMode", &StochasticSequence::runMode, &StochasticSequence::setRunMode)
-        .def_property("firstStep", &StochasticSequence::firstStep, &StochasticSequence::setFirstStep)
-        .def_property("lastStep", &StochasticSequence::lastStep, &StochasticSequence::setLastStep)
-        .def_property("sequenceFirstStep", &StochasticSequence::sequenceFirstStep, &StochasticSequence::setSequenceFirstStep)
-        .def_property("sequenceLastStep", &StochasticSequence::sequenceLastStep, &StochasticSequence::setSequenceLastStep)
-        .def_property(
-            "lowOctaveRange",
-            &StochasticSequence::lowOctaveRange,
-            [] (StochasticSequence &sequence, int value) { sequence.setLowOctaveRange(value); }
-        )
-        .def_property(
-            "highOctaveRange",
-            &StochasticSequence::highOctaveRange,
-            [] (StochasticSequence &sequence, int value) { sequence.setHighOctaveRange(value); }
-        )
-        .def_property_readonly("steps", [] (StochasticSequence &sequence) {
-            py::list result;
-            for (int i = 0; i < CONFIG_STEP_COUNT; ++i) {
-                result.append(&sequence.step(i));
-            }
-            return result;
-        })
-        .def("clear", &StochasticSequence::clear)
-        .def("clearSteps", &StochasticSequence::clearSteps)
-        .def("shiftSteps", &StochasticSequence::shiftSteps, "selected"_a, "direction"_a)
-        .def("duplicateSteps", &StochasticSequence::duplicateSteps)
-    ;
-
-    py::enum_<StochasticSequence::Layer>(stochasticSequence, "Layer")
-        .value("Gate", StochasticSequence::Layer::Gate)
-        .value("GateProbability", StochasticSequence::Layer::GateProbability)
-        .value("GateOffset", StochasticSequence::Layer::GateOffset)
-        .value("Retrigger", StochasticSequence::Layer::Retrigger)
-        .value("RetriggerProbability", StochasticSequence::Layer::RetriggerProbability)
-        .value("StageRepeats", StochasticSequence::Layer::StageRepeats)
-        .value("StageRepeatsMode", StochasticSequence::Layer::StageRepeatsMode)
-        .value("Length", StochasticSequence::Layer::Length)
-        .value("LengthVariationRange", StochasticSequence::Layer::LengthVariationRange)
-        .value("LengthVariationProbability", StochasticSequence::Layer::LengthVariationProbability)
-        .value("NoteVariationProbability", StochasticSequence::Layer::NoteVariationProbability)
-        .value("NoteOctave", StochasticSequence::Layer::NoteOctave)
-        .value("NoteOctaveProbability", StochasticSequence::Layer::NoteOctaveProbability)
-        .value("Slide", StochasticSequence::Layer::Slide)
-        .value("Condition", StochasticSequence::Layer::Condition)
-        .export_values()
-    ;
-
-    py::class_<StochasticSequence::Step> stochasticSequenceStep(stochasticSequence, "Step");
-    stochasticSequenceStep
-        .def_property("gate", &StochasticSequence::Step::gate, &StochasticSequence::Step::setGate)
-        .def_property("gateProbability", &StochasticSequence::Step::gateProbability, &StochasticSequence::Step::setGateProbability)
-        .def_property("gateOffset", &StochasticSequence::Step::gateOffset, &StochasticSequence::Step::setGateOffset)
-        .def_property("slide", &StochasticSequence::Step::slide, &StochasticSequence::Step::setSlide)
-        .def_property("retrigger", &StochasticSequence::Step::retrigger, &StochasticSequence::Step::setRetrigger)
-        .def_property("retriggerProbability", &StochasticSequence::Step::retriggerProbability, &StochasticSequence::Step::setRetriggerProbability)
-        .def_property("length", &StochasticSequence::Step::length, &StochasticSequence::Step::setLength)
-        .def_property("lengthVariationRange", &StochasticSequence::Step::lengthVariationRange, &StochasticSequence::Step::setLengthVariationRange)
-        .def_property("lengthVariationProbability", &StochasticSequence::Step::lengthVariationProbability, &StochasticSequence::Step::setLengthVariationProbability)
-        .def_property("note", &StochasticSequence::Step::note, &StochasticSequence::Step::setNote)
-        .def_property("noteOctave", &StochasticSequence::Step::noteOctave, &StochasticSequence::Step::setNoteOctave)
-        .def_property("noteOctaveProbability", &StochasticSequence::Step::noteOctaveProbability, &StochasticSequence::Step::setNoteOctaveProbability)
-        .def_property("noteVariationProbability", &StochasticSequence::Step::noteVariationProbability, &StochasticSequence::Step::setNoteVariationProbability)
-        .def_property("condition", &StochasticSequence::Step::condition, &StochasticSequence::Step::setCondition)
-        .def("clear", &StochasticSequence::Step::clear)
     ;
 
     // ------------------------------------------------------------------------

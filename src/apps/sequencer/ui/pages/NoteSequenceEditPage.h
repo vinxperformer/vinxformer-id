@@ -21,6 +21,7 @@ public:
         AcidEuclideanPhrase,
         Vandalize,
         Wreck,
+        Permutation,
         Euclidean,
         InitLayer,
         InitSteps,
@@ -85,6 +86,7 @@ private:
     bool supportsAcidLayerMode() const;
     void showChaosGenerator();
     void showChaosGenerator(ChaosGenerator::Scope scope);
+    void showPermutationGenerator();
     bool inNoteTrackContext() const;
     void drawLaunchpadGeneratorOverlay(Canvas &canvas);
     void showProjectSavePage();

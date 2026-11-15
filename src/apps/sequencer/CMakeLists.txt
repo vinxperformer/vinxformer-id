@@ -14,8 +14,6 @@ set(sources
     engine/MidiLearn.cpp
     engine/MidiOutputEngine.cpp
     engine/NoteTrackEngine.cpp
-    engine/StochasticEngine.cpp
-    engine/LogicTrackEngine.cpp
     engine/ArpTrackEngine.cpp
     engine/RoutingEngine.cpp
     engine/SequenceState.cpp
@@ -26,6 +24,7 @@ set(sources
     engine/generators/ChaosEntropyGenerator.cpp
     engine/generators/Generator.cpp
     engine/generators/RandomGenerator.cpp
+    engine/generators/PermutationGenerator.cpp
     engine/generators/Rhythm.cpp
     # intro
     intro/Intro.cpp
@@ -71,16 +70,13 @@ set(sources
     ui/Ui.cpp
     ui/Screensaver.cpp
     # ui/controllers/launchpad
-    ui/controllers/knobpad/KnobPad16Controller.cpp
     ui/controllers/launchpad/LaunchpadController.cpp
     ui/controllers/launchpad/LaunchpadControllerGeneratorsMode.cpp
     ui/controllers/launchpad/LaunchpadControllerTrackSceneRouting.cpp
     ui/controllers/launchpad/LaunchpadControllerTrackLeds.cpp
     ui/controllers/launchpad/LaunchpadDevice.cpp
-    ui/controllers/launchpad/LaunchpadMk2Device.cpp
     ui/controllers/launchpad/LaunchpadMk3Device.cpp
     ui/controllers/launchpad/LaunchpadProDevice.cpp
-    ui/controllers/launchpad/LaunchpadProMk3Device.cpp
     # ui/pages
     ui/pages/AsteroidsPage.cpp
     ui/pages/BasePage.cpp
@@ -104,10 +100,6 @@ set(sources
     ui/pages/MonitorPage.cpp
     ui/pages/NoteSequenceEditPage.cpp
     ui/pages/NoteSequencePage.cpp
-    ui/pages/StochasticSequencePage.cpp
-    ui/pages/StochasticSequenceEditPage.cpp
-    ui/pages/LogicSequenceEditPage.cpp
-    ui/pages/LogicSequencePage.cpp
     ui/pages/ArpSequenceEditPage.cpp
     ui/pages/ArpSequencePage.cpp
     ui/pages/OverviewPage.cpp
@@ -129,6 +121,10 @@ set(sources
     ui/painters/SongPainter.cpp
     ui/painters/WindowPainter.cpp
 )
+
+if(${PLATFORM} STREQUAL "sim")
+    list(APPEND sources ui/controllers/launchpad/LaunchpadMk2Device.cpp)
+endif()
 
 include_directories(.)
 

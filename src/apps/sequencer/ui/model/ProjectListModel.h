@@ -54,6 +54,8 @@ public:
     void setSelectedScale() {
         if (_editScale) {
             _project.editScale(_scales[_selectedScale], false);
+        } else {
+            _selectedScale = _project.scale();
         }
         _editScale = !_editScale;
     }
@@ -146,7 +148,8 @@ private:
             _project.printSyncMeasure(str);
             break;
         case Scale: {
-            auto name = _scales[_selectedScale] < 0 ? "Default" : Scale::name(_scales[_selectedScale]);
+            int selected = _editScale ? _scales[_selectedScale] : _project.scale();
+            auto name = selected < 0 ? "Default" : Scale::name(selected);
             str(name);
             }
             break;

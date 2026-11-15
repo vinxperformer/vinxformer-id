@@ -3,8 +3,6 @@
 #include "model/Project.h"
 #include "model/NoteSequence.h"
 #include "model/CurveSequence.h"
-#include "model/StochasticSequence.h"
-#include "model/LogicSequence.h"
 #include "model/ArpSequence.h"
 
 #include "EntropyTargets.h"
@@ -61,12 +59,6 @@ public:
 template<typename T>
 inline void restoreClearedStepDefaults(T &, int) {}
 
-template<>
-inline void restoreClearedStepDefaults<StochasticSequence>(StochasticSequence &sequence, int stepIndex) {
-    if (stepIndex >= 0 && stepIndex < 12) {
-        sequence.step(stepIndex).setNote(stepIndex);
-    }
-}
 
 template<>
 inline void restoreClearedStepDefaults<ArpSequence>(ArpSequence &sequence, int stepIndex) {
@@ -135,102 +127,7 @@ inline void applyTarget<CurveSequence>(EntropyTarget target, const CurveSequence
     }
 }
 
-template<>
-inline void applyTarget<StochasticSequence>(EntropyTarget target, const StochasticSequence::Step &originalStep, StochasticSequence::Step &previewStep, Random &rng, int blend) {
-    switch (target) {
-    case EntropyTarget::Gate:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::Gate, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::GateOffset:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::GateOffset, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::GateProbability:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::GateProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::Retrigger:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::Retrigger, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::RetriggerProbability:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::RetriggerProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::EventLength:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::Length, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::EventLengthVariationRange:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::LengthVariationRange, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::EventLengthVariationProbability:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::LengthVariationProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::PrimaryValueVariationProbability:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::NoteVariationProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::Register:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::NoteOctave, originalStep, previewStep, rng, blend);
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::NoteOctaveProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::Motion:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::Slide, originalStep, previewStep, rng, blend);
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::Condition, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::LogicRepeatRules:
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::StageRepeats, originalStep, previewStep, rng, blend);
-        applyLayer<StochasticSequence>(StochasticSequence::Layer::StageRepeatsMode, originalStep, previewStep, rng, blend);
-        break;
-    default:
-        break;
-    }
-}
 
-template<>
-inline void applyTarget<LogicSequence>(EntropyTarget target, const LogicSequence::Step &originalStep, LogicSequence::Step &previewStep, Random &rng, int blend) {
-    switch (target) {
-    case EntropyTarget::Gate:
-        applyLayer<LogicSequence>(LogicSequence::Layer::Gate, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::GateOffset:
-        applyLayer<LogicSequence>(LogicSequence::Layer::GateOffset, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::GateProbability:
-        applyLayer<LogicSequence>(LogicSequence::Layer::GateProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::Retrigger:
-        applyLayer<LogicSequence>(LogicSequence::Layer::Retrigger, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::RetriggerProbability:
-        applyLayer<LogicSequence>(LogicSequence::Layer::RetriggerProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::EventLength:
-        applyLayer<LogicSequence>(LogicSequence::Layer::Length, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::EventLengthVariationRange:
-        applyLayer<LogicSequence>(LogicSequence::Layer::LengthVariationRange, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::EventLengthVariationProbability:
-        applyLayer<LogicSequence>(LogicSequence::Layer::LengthVariationProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::PrimaryValue:
-        applyLayer<LogicSequence>(LogicSequence::Layer::NoteLogic, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::PrimaryValueVariationRange:
-        applyLayer<LogicSequence>(LogicSequence::Layer::NoteVariationRange, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::PrimaryValueVariationProbability:
-        applyLayer<LogicSequence>(LogicSequence::Layer::NoteVariationProbability, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::Motion:
-        applyLayer<LogicSequence>(LogicSequence::Layer::Slide, originalStep, previewStep, rng, blend);
-        applyLayer<LogicSequence>(LogicSequence::Layer::Condition, originalStep, previewStep, rng, blend);
-        break;
-    case EntropyTarget::LogicRepeatRules:
-        applyLayer<LogicSequence>(LogicSequence::Layer::GateLogic, originalStep, previewStep, rng, blend);
-        applyLayer<LogicSequence>(LogicSequence::Layer::StageRepeats, originalStep, previewStep, rng, blend);
-        applyLayer<LogicSequence>(LogicSequence::Layer::StageRepeatsMode, originalStep, previewStep, rng, blend);
-        break;
-    default:
-        break;
-    }
-}
 
 template<>
 inline void applyTarget<ArpSequence>(EntropyTarget target, const ArpSequence::Step &originalStep, ArpSequence::Step &previewStep, Random &rng, int blend) {
@@ -496,8 +393,6 @@ private:
 
 typedef SequenceBuilderImpl<NoteSequence> NoteSequenceBuilder;
 typedef SequenceBuilderImpl<CurveSequence> CurveSequenceBuilder;
-typedef SequenceBuilderImpl<StochasticSequence> StochasticSequenceBuilder;
-typedef SequenceBuilderImpl<LogicSequence> LogicSequenceBuilder;
 typedef SequenceBuilderImpl<ArpSequence> ArpSequenceBuilder;
 
 class AcidSequenceBuilder : public SequenceBuilder {
@@ -894,6 +789,9 @@ public:
     }
 
     int noteTrackCount() const { return _trackCount; }
+    int selectedTrackIndex() const { return _selectedTrackIndex; }
+    int trackIndex(int trackSlot) const { return _trackIndices[trackSlot]; }
+    int targetStepIndex(int trackSlot, int targetIndex) const { return _tracks[trackSlot].targetSteps[targetIndex]; }
 
     bool targetTrack(int trackSlot) const {
         return _scope == Scope::Pattern || trackSlot == _selectedTrackSlot;

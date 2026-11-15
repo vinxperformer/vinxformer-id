@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://vinxscorza.github.io/performer/sitemap.xml

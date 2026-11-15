@@ -336,6 +336,9 @@ bool Routing::targetSupportedByTrackMode(Target target, uint8_t trackMode) {
     }
 
     const auto mode = Track::TrackMode(trackMode);
+    if (mode == Track::TrackMode::Stochastic || mode == Track::TrackMode::Logic) {
+        return false;
+    }
     switch (target) {
     case Target::Mute:
     case Target::Fill:

@@ -16,7 +16,6 @@ enum class EntropyTarget : uint8_t {
     PrimaryValueVariationProbability,
     Register,
     Motion,
-    LogicRepeatRules,
     Last
 };
 
@@ -37,7 +36,6 @@ inline const char *entropyTargetLabel(EntropyTarget target) {
     case EntropyTarget::PrimaryValueVariationProbability:return "P Val Prob";
     case EntropyTarget::Register:                       return "Register";
     case EntropyTarget::Motion:                         return "Motion";
-    case EntropyTarget::LogicRepeatRules:               return "Logic/Rpt";
     case EntropyTarget::Last:                           break;
     }
     return "";

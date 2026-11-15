@@ -23,6 +23,7 @@ public:
     {}
 
     virtual bool isChromatic() const = 0;
+    virtual bool appliesRootNote() const { return isChromatic(); }
     virtual bool isNotePresent(int note) const = 0;
     virtual int getNoteIndex(int note) const = 0;
     virtual int noteIndex(int note, int rootNote) const = 0;
@@ -33,7 +34,12 @@ public:
 
     virtual int notesPerOctave() const = 0;
 
+    float rootNoteToVolts(int rootNote) const {
+        return appliesRootNote() ? rootNote * (1.f / 12.f) : 0.f;
+    }
+
     static int Count;
+    static constexpr int MusicalPresetCount = 19; // Semitones through 24-tet; excludes Voltage and user scales.
     static const Scale &get(int index);
     static const char *name(int index);
 
@@ -63,6 +69,8 @@ public:
     bool isChromatic() const override {
         return _chromatic;
     }
+
+    bool appliesRootNote() const override { return true; }
 
     bool isNotePresent(int note) const override {
         if (note >= 12) {

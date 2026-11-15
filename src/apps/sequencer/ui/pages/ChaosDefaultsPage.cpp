@@ -75,7 +75,6 @@ bool entropyCellTarget(int cell, ChaosEntropyGenerator::Target &target) {
     case 10: target = ChaosEntropyGenerator::Target::PrimaryValueVariationProbability; return true;
     case 14: target = ChaosEntropyGenerator::Target::Register; return true;
     case 3:  target = ChaosEntropyGenerator::Target::Motion; return true;
-    case 7:  target = ChaosEntropyGenerator::Target::LogicRepeatRules; return true;
     default: break;
     }
     return false;

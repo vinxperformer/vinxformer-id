@@ -49,16 +49,25 @@ void StartupPage::draw(Canvas &canvas) {
 
     canvas.setColor(Color::Bright);
 
+    canvas.setFont(Font::Tiny);
+    canvas.drawTextCentered(0, 0, Width, 8, "PERSONAL PERFORMANCE FIRMWARE");
     canvas.setFont(Font::Small);
-    canvas.drawTextCentered(0, 0, Width, 32, "PERFORMER");
+    canvas.drawTextCentered(0, 10, Width, 14, "VINX|FORMER ID");
     canvas.setFont(Font::Tiny);
-    canvas.drawTextCentered(0, 20, Width, 8, "Vinx FW v" CONFIG_VERSION_NAME);
+    canvas.drawTextCentered(0, 23, Width, 8, "v0.1.1");
 
-    canvas.setFont(Font::Tiny);
-    canvas.drawTextCentered(0, 32, Width, 32, "LOADING ...");
+    canvas.setColor(Color::Medium);
+    canvas.hline(0, 32, Width);
+    canvas.setColor(Color::Bright);
+    canvas.drawTextCentered(0, 34, Width, 8, "BUILT FOR ONE.");
+    canvas.drawTextCentered(0, 42, Width, 8, "SHARED WITH EVERYONE.");
+    canvas.setColor(Color::Medium);
+    canvas.drawTextCentered(0, 51, Width, 7, "NO ROADMAP. JUST EXPLORATION.");
+    canvas.drawTextCentered(0, 58, Width, 6, "MY WORKFLOW. MY RULES.");
 
     int w = std::floor(relTime() * Width);
-    canvas.fillRect(0, 32 - 2, w, 4);
+    canvas.setColor(Color::Bright);
+    canvas.fillRect(0, 31, w, 2);
 }
 
 void StartupPage::updateLeds(Leds &leds) {

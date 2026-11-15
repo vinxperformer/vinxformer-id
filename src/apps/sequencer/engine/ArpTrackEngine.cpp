@@ -215,7 +215,7 @@ static float evalStepNote(const ArpSequence::Step &step, int probabilityBias, co
             }
             note = NoteSequence::Note::clamp(note + offset);
         }
-        return bypassScale.noteToVolts(note) + (bypassScale.isChromatic() ? rootNote : 0) * (1.f / 12.f);
+        return bypassScale.noteToVolts(note) + bypassScale.rootNoteToVolts(rootNote);
     }
     int note = useLegacyChromaticPitchSlot(step, scale, forceScaleTransposition)
         ? legacyChromaticPitchSlotToScaleNote(scale, step.note())
@@ -233,7 +233,7 @@ static float evalStepNote(const ArpSequence::Step &step, int probabilityBias, co
         }
         note = NoteSequence::Note::clamp(note + offset);
     }
-    return scale.noteToVolts(note) + (scale.isChromatic() ? rootNote : 0) * (1.f / 12.f);
+    return scale.noteToVolts(note) + scale.rootNoteToVolts(rootNote);
 }
 
 #if defined(PLATFORM_SIM)
@@ -464,7 +464,7 @@ void ArpTrackEngine::update(float dt) {
         setOverride(evalStepNote(step, 0, scale, rootNote, octave, transpose,  sequence, true, forceScaleTransposition));
     } else if (liveMonitoring && _recordHistory.isNoteActive() && !running) {
         int note = noteFromMidiNote(_recordHistory.activeNote()) + evalTransposition(scale, octave, transpose);
-        setOverride(scale.noteToVolts(note) + (scale.isChromatic() ? rootNote : 0) * (1.f / 12.f));
+        setOverride(scale.noteToVolts(note) + scale.rootNoteToVolts(rootNote));
     } else {
         clearOverride();
     }
@@ -743,12 +743,10 @@ int ArpTrackEngine::noteFromMidiNote(uint8_t midiNote) const {
     float semitoneVolts = octaveVolts * (1.f / 12.f);
     float volts = (int(midiNote) - 60) * semitoneVolts;
 
+    volts -= scale.rootNoteToVolts(rootNote);
     if (scale.isChromatic()) {
         return int(midiNote) - 60 - rootNote;
-    } else {
-        // Non-chromatic scales ignore root-note transposition here, matching the existing behavior.
     }
-
     return scale.noteFromVolts(volts);
 }
 

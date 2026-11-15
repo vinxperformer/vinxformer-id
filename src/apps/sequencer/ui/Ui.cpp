@@ -43,6 +43,8 @@ static uint32_t hashFrameBuffer(const uint8_t *data, size_t size) {
 void Ui::init() {
     _pageKeyState.reset();
     _globalKeyState.reset();
+    _randomScaleKeyHeld = false;
+    _restoreScaleKeyHeld = false;
 
     _controllerManager.setUiContext(_pageManager, _pages);
 
@@ -182,6 +184,30 @@ void Ui::handleKeys() {
 
         KeyEvent keyEvent(isDown ? Event::KeyDown : Event::KeyUp, key);
         _screensaver.consumeKey(keyEvent);
+
+        // SHIFT+PERF and SHIFT+PATT act on the Project scale from any page.
+        // Swallow both edges so modal pages never see a partial PERF/PATT press.
+        if (key.isPerformer() || key.isPattern()) {
+            bool &shortcutHeld = key.isPerformer() ? _randomScaleKeyHeld : _restoreScaleKeyHeld;
+            if (isDown && key.shiftModifier() && !shortcutHeld) {
+                shortcutHeld = true;
+                auto &project = _model.project();
+                if (key.isPerformer()) {
+                    _randomScaleState = _randomScaleState * 1664525u + 1013904223u + uint32_t(os::ticks());
+                    const int scaleIndex = project.randomizePerformanceScale(_randomScaleState);
+                    _messageManager.showMessage(FixedStringBuilder<48>("RANDOM SCALE: %s", Scale::name(scaleIndex)));
+                } else {
+                    project.restorePerformanceScale();
+                    _messageManager.showMessage(FixedStringBuilder<48>("SCALE: %s", Scale::name(project.scale())));
+                }
+                continue;
+            }
+            if (shortcutHeld) {
+                if (!isDown) shortcutHeld = false;
+                continue;
+            }
+        }
+
         _pageManager.dispatchEvent(keyEvent);
         if (isDown) {
             KeyPressEvent keyPressEvent = _keyPressEventTracker.process(key);

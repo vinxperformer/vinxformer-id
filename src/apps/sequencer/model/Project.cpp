@@ -234,6 +234,9 @@ void Project::clearPattern(int patternIndex) {
 }
 
 void Project::setTrackMode(int trackIndex, Track::TrackMode trackMode) {
+    if (trackMode == Track::TrackMode::Stochastic || trackMode == Track::TrackMode::Logic) {
+        return;
+    }
     // TODO make sure engine is synced to this before updating UI
     _playState.revertSnapshot();
     _tracks[trackIndex].setTrackMode(trackMode);
@@ -334,6 +337,12 @@ bool Project::read(VersionedSerializedReader &reader) {
     reader.read(_useMultiCv, ProjectVersion::Version39);
 
     bool success = reader.checkHash();
+    for (const auto &track : _tracks) {
+        if (track.trackMode() == Track::TrackMode::Stochastic ||
+            track.trackMode() == Track::TrackMode::Logic) {
+            success = false;
+        }
+    }
     if (success) {
         // Harden loaded state from legacy/corrupted projects before notifying observers.
         _selectedTrackIndex = clamp(_selectedTrackIndex, 0, CONFIG_TRACK_COUNT - 1);

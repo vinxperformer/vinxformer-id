@@ -1,7 +1,6 @@
 #include "Engine.h"
 
 #include "Config.h"
-#include "LogicTrackEngine.h"
 #include "MidiUtils.h"
 
 #include "NoteTrackEngine.h"
@@ -524,10 +523,10 @@ void Engine::updateTrackSetups() {
                 trackEngine = trackContainer.create<MidiCvTrackEngine>(*this, _model, track, linkedTrackEngine);
                 break;
             case Track::TrackMode::Stochastic:
-                trackEngine = trackContainer.create<StochasticEngine>(*this, _model, track, linkedTrackEngine);
-                break;
             case Track::TrackMode::Logic:
-                trackEngine = trackContainer.create<LogicTrackEngine>(*this, _model, track, linkedTrackEngine);
+                // Project::read rejects these modes; recover safely if one still reaches the engine.
+                track.clear();
+                trackEngine = trackContainer.create<NoteTrackEngine>(*this, _model, track, linkedTrackEngine);
                 break;
             case Track::TrackMode::Arp:
                 trackEngine = trackContainer.create<ArpTrackEngine>(*this, _model, track, linkedTrackEngine);

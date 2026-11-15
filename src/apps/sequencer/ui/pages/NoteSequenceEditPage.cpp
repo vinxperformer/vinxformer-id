@@ -102,8 +102,7 @@ void NoteSequenceEditPage::draw(Canvas &canvas) {
     const auto pattern_follow = track.patternFollow();
     const char* pf_repr = Types::patternFollowShortRepresentation(pattern_follow);
 
-    const char *headerMode = _model.knobPad16Armed() ? "16STEP EDIT" : "STEPS";
-    WindowPainter::drawHeader(canvas, _model, _engine, headerMode, pf_repr);
+    WindowPainter::drawHeader(canvas, _model, _engine, "STEPS", pf_repr);
 
     WindowPainter::drawActiveFunction(canvas, NoteSequence::layerName(layer()));
     if (_launchpadGeneratorModeActive) {
@@ -340,7 +339,7 @@ void NoteSequenceEditPage::draw(Canvas &canvas) {
 
 void NoteSequenceEditPage::drawLaunchpadGeneratorOverlay(Canvas &canvas) {
     static const char * const overlayCells[2][6] = {
-        { "RAND", "ACIDL", "VNDLZ", "EUCL", nullptr, "INITL" },
+        { "RAND", "ACIDL", "VNDLZ", "EUCL", "PERM", "INITL" },
         { "ACIDEU", "ACIDP", "WRECK", nullptr, nullptr, "INITS" },
     };
 
@@ -1286,6 +1285,10 @@ void NoteSequenceEditPage::generateSequence() {
                 showChaosGenerator();
                 return;
             }
+            if (mode == Generator::Mode::Permutation) {
+                showPermutationGenerator();
+                return;
+            }
 
             destroyActiveBuilder();
             auto builder = _builderContainer.create<NoteSequenceBuilder>(_project.selectedNoteSequence(), layer());
@@ -1312,6 +1315,7 @@ void NoteSequenceEditPage::openLaunchpadGenerator(LaunchpadGenerator generator) 
     if (generator != LaunchpadGenerator::InitLayer &&
         generator != LaunchpadGenerator::InitSteps &&
         generator != LaunchpadGenerator::Wreck &&
+        generator != LaunchpadGenerator::Permutation &&
         _stepSelection.none()) {
         _stepSelection.selectAll();
     }
@@ -1346,6 +1350,9 @@ void NoteSequenceEditPage::openLaunchpadGenerator(LaunchpadGenerator generator) 
         break;
     case LaunchpadGenerator::Wreck:
         showChaosGenerator(ChaosGenerator::Scope::Pattern);
+        break;
+    case LaunchpadGenerator::Permutation:
+        showPermutationGenerator();
         break;
     case LaunchpadGenerator::InitLayer:
     case LaunchpadGenerator::InitSteps: {
@@ -1448,6 +1455,21 @@ void NoteSequenceEditPage::showChaosGenerator(ChaosGenerator::Scope scope) {
         chaos->setPivotNote(_model.settings().userSettings().get<ChaosPivotNoteSetting>(SettingChaosPivotNote)->getValue());
         chaos->setSpan(_model.settings().userSettings().get<ChaosSpanSetting>(SettingChaosSpan)->getValue());
         generator->update();
+        _manager.pages().generator.show(generator, &_stepSelection);
+    }
+}
+
+void NoteSequenceEditPage::showPermutationGenerator() {
+    if (!inNoteTrackContext()) return;
+
+    destroyActiveBuilder();
+    static std::bitset<CONFIG_STEP_COUNT> fullLoopSelection;
+    fullLoopSelection.reset();
+    auto builder = _builderContainer.create<ChaosSequenceBuilder>(
+        _project, fullLoopSelection, ChaosSequenceBuilder::Scope::Pattern);
+    _activeBuilder = ActiveBuilder::Chaos;
+    auto generator = Generator::execute(Generator::Mode::Permutation, *builder, fullLoopSelection);
+    if (generator) {
         _manager.pages().generator.show(generator, &_stepSelection);
     }
 }

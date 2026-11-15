@@ -2,6 +2,54 @@ import testframework as tf
 
 
 class GeneratorRegressionTest(tf.UiTest):
+    def test_permutation_multitrack_preview_and_cancel(self):
+        c = self.controller
+        p = self.env.sequencer.model.project
+        p.setTrackMode(0, p.tracks[0].TrackMode.Note)
+        p.setTrackMode(1, p.tracks[1].TrackMode.Note)
+        p.selectedTrackIndex = 0
+        for track_index in (0, 1):
+            sequence = p.tracks[track_index].noteTrack.sequences[0]
+            for step in range(16):
+                sequence.steps[step].gate = step % 2 == track_index
+                sequence.steps[step].note = 20 + step + track_index * 20
+        first = p.tracks[0].noteTrack.sequences[0]
+        second = p.tracks[1].noteTrack.sequences[0]
+        original_first = self._note_signature(first)
+        original_second = self._note_signature(second)
+
+        self._open_generator_page(4)  # Permutation in the Note generator list.
+        c.press("track2").wait(20)
+        self.assertEqual(p.selectedTrackIndex, 0)
+        c.press("f3").wait(30)  # NEW PERM
+        c.press("f1").wait(20)  # ORIGINAL
+        self.assertEqual(self._note_signature(first), original_first)
+        self.assertEqual(self._note_signature(second), original_second)
+        c.press("f1").wait(20)  # PERMUTED
+        c.press("f4").wait(20)  # CANCEL
+        self.assertEqual(self._note_signature(first), original_first)
+        self.assertEqual(self._note_signature(second), original_second)
+
+    def test_launchpad_permutation_grid_and_track_selection(self):
+        c = self.controller
+        p = self.env.sequencer.model.project
+        p.setTrackMode(0, p.tracks[0].TrackMode.Note)
+        p.setTrackMode(1, p.tracks[1].TrackMode.Note)
+        p.selectedTrackIndex = 0
+        c.selectPage("steps")
+        self._lp_connect()
+        self._lp_toggle_generators_mode()
+        self._lp_press_grid(4)  # GRID 5
+        self.assertTrue(self.env.sequencer.isGeneratorPageTop)
+        self._lp_press_scene(1)  # Include track 2 without retargeting.
+        self.assertEqual(p.selectedTrackIndex, 0)
+        self.assertTrue(self.env.sequencer.isGeneratorPageTop)
+        self._lp_press_function(5)  # NEW PERM
+        self.assertTrue(self.env.sequencer.isGeneratorPageTop)
+        self._lp_press_function(4)  # A/B
+        self._lp_press_function(6)  # CANCEL
+        self.assertFalse(self.env.sequencer.isGeneratorPageTop)
+
     def _open_generator_select_from_steps(self):
         c = self.controller
 
@@ -729,35 +777,6 @@ class GeneratorRegressionTest(tf.UiTest):
         self.assertEqual(sequence.steps[0].gate, 0)
         self.assertEqual(sequence.steps[0].min, 0)
         self.assertEqual(sequence.steps[0].max, 255)
-
-    def test_launchpad_non_note_generators_mode_switch_stays_active_on_stochastic_gate(self):
-        c = self.controller
-        p = self.env.sequencer.model.project
-
-        p.selectedTrackIndex = 0
-        p.setTrackMode(0, p.tracks[0].TrackMode.Stochastic)
-        p.selectedStochasticSequenceLayer = p.selectedStochasticSequence.Layer.Gate
-        c.selectPage("steps")
-        self._lp_connect()
-
-        self._lp_toggle_generators_mode()
-        self.assertTrue(self.env.sequencer.launchpadGeneratorsModeActiveForTest)
-        self.assertFalse(self.env.sequencer.isGeneratorPageTop)
-
-        # Open Random first, then repeatedly switch among subset generators.
-        self._lp_press_grid(0)  # Random
-        self.assertTrue(self.env.sequencer.isGeneratorPageTop)
-        self.assertTrue(self.env.sequencer.launchpadGeneratorsModeActiveForTest)
-
-        for grid_index in (2, 3, 0, 2, 3, 0, 2, 3):
-            self._lp_press_grid(grid_index)  # Entropy / Euclidean / Random
-            self.assertTrue(self.env.sequencer.isGeneratorPageTop)
-            self.assertTrue(self.env.sequencer.launchpadGeneratorsModeActiveForTest)
-
-        self._lp_press_function(6)  # TOP 7 Cancel
-        c.wait(30)
-        self.assertFalse(self.env.sequencer.isGeneratorPageTop)
-        self.assertFalse(self.env.sequencer.launchpadGeneratorsModeActiveForTest)
 
     def test_launchpad_init_steps_exits_generators_mode(self):
         c = self.controller

@@ -20,6 +20,7 @@ public:
         Acid,
         Chaos,
         ChaosEntropy,
+        Permutation,
         Last
     };
 
@@ -32,6 +33,7 @@ public:
         case Mode::Acid:        return "Acid";
         case Mode::Chaos:       return "Chaos";
         case Mode::ChaosEntropy:return "Entropy";
+        case Mode::Permutation: return "Permutation";
         case Mode::Last:        break;
         }
         return nullptr;

@@ -42,9 +42,6 @@ public:
         _track = &track;
     }
 
-    void setAvailableLogicTracks(std::vector<int> availableLogicTracks) {
-        _availableLogicTracks = availableLogicTracks;
-    }
 
     virtual int rows() const override {
         return Last;
@@ -253,6 +250,5 @@ private:
 
     ArpTrack *_track;
 
-    std::vector<int> _availableLogicTracks;
     int _selectedTrack[8];
 };

@@ -49,12 +49,6 @@ class InitRegressionTest(tf.UiTest):
         p.setTrackMode(0, p.tracks[0].TrackMode.Note)
         return p
 
-    def _configure_stochastic_track(self):
-        p = self.env.sequencer.model.project
-        p.selectedTrackIndex = 0
-        p.setTrackMode(0, p.tracks[0].TrackMode.Stochastic)
-        return p
-
     def _configure_arp_track(self):
         p = self.env.sequencer.model.project
         p.selectedTrackIndex = 0
@@ -161,64 +155,6 @@ class InitRegressionTest(tf.UiTest):
             self.assertFalse(sequence.steps[idx].gate)
             self.assertEqual(sequence.steps[idx].note, 0)
             self.assertNotEqual(sequence.steps[idx].length, 10 + idx)
-
-    def test_stochastic_init_layer_init_steps_and_init_seq(self):
-        p = self._configure_stochastic_track()
-        c = self.controller
-
-        c.selectPage("steps")
-        p.selectedStochasticSequenceLayer = p.selectedStochasticSequence.Layer.NoteVariationProbability
-
-        sequence = p.selectedStochasticSequence
-        for idx, base_note in enumerate([4, 6, 8, 10]):
-            step = sequence.steps[idx]
-            step.gate = True
-            step.note = base_note
-            step.noteVariationProbability = 5 + idx
-
-        before_var_prob = [sequence.steps[i].noteVariationProbability for i in range(4)]
-        before_gates = [sequence.steps[i].gate for i in range(4)]
-        before_notes = [sequence.steps[i].note for i in range(4)]
-
-        # Init Layer (Note Prob) should not clear full steps.
-        self._set_single_persistent_selection("step1")
-        self._trigger_steps_context_action("f1")
-
-        after_var_prob = [sequence.steps[i].noteVariationProbability for i in range(4)]
-        changed_indices = self._selection_changed_indices(before_var_prob, after_var_prob)
-        self.assertEqual(len(changed_indices), 1)
-        selected_index = changed_indices[0]
-        self.assertEqual(after_var_prob[selected_index], 0)
-        self.assertEqual(sequence.steps[selected_index].gate, before_gates[selected_index])
-        self.assertEqual(sequence.steps[selected_index].note, before_notes[selected_index])
-
-        # Init Steps from GEN chooser with selection: full reset on selected step, with chromatic note default.
-        self._run_init_steps_from_generator_select(3)  # Non-note chooser: row 3 = Init Steps
-        self.assertFalse(sequence.steps[selected_index].gate)
-        self.assertEqual(sequence.steps[selected_index].note, selected_index)
-
-        # No-selection fallback: Init Steps must affect full track.
-        self._set_single_persistent_selection("step1")  # clear persisted selection
-        for idx in range(4):
-            sequence.steps[idx].gate = True
-            sequence.steps[idx].note = 40 + idx
-            sequence.steps[idx].noteVariationProbability = 9
-
-        self._run_init_steps_from_generator_select(3)
-        for idx in range(4):
-            self.assertFalse(sequence.steps[idx].gate)
-            self.assertEqual(sequence.steps[idx].note, idx)
-            self.assertEqual(sequence.steps[idx].noteVariationProbability, 0)
-
-        # Init Seq from SEQ page restores deterministic sequence defaults.
-        sequence.lowOctaveRange = -1
-        sequence.highOctaveRange = 3
-        c.selectPage("sequence")
-        self._trigger_steps_context_action("f1")
-        self.assertEqual(sequence.lowOctaveRange, -3)
-        self.assertEqual(sequence.highOctaveRange, 0)
-        for idx in range(12):
-            self.assertEqual(sequence.steps[idx].note, idx)
 
     def test_arp_init_layer_init_steps_and_init_seq(self):
         p = self._configure_arp_track()

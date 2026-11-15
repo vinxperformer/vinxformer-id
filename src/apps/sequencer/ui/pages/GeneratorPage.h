@@ -49,6 +49,10 @@ public:
     void showPreviewStateMessage();
     bool launchpadShowingPreview() const;
     bool launchpadResetState() const;
+    bool permutationActive() const;
+    bool permutationTrackAvailable(int trackIndex) const;
+    bool permutationTrackEnabled(int trackIndex) const;
+    void togglePermutationTrack(int trackIndex);
     bool launchpadTrackRetargetLocked() const;
     void printChaosSettingEdit(int settingIndex, StringBuilder &str) const;
     void editChaosSettingEdit(int settingIndex, int value, bool shift);
@@ -76,7 +80,9 @@ private:
     bool _previewArmed = false;
     bool _launchpadResetState = false;
     bool _applied = false;
+    int _permutationParam = 0;
     int _boundTrackIndex = -1;
+    int _boundPatternIndex = -1;
     Track::TrackMode _boundTrackMode = Track::TrackMode::Note;
     char _contextMenuAuxLabel[16] = "";
     char _variationMenuLabel[16] = "VAR";

@@ -2,6 +2,7 @@
 
 #include "apps/sequencer/model/Project.h"
 #include "apps/sequencer/model/Routing.h"
+#include "apps/sequencer/ui/model/TrackModeListModel.h"
 
 #include <cmath>
 
@@ -22,6 +23,26 @@ float divisorValue(int value) {
 }
 
 UNIT_TEST("Routing") {
+    CASE("Removed track modes cannot be selected") {
+        Project project;
+        project.setTrackMode(0, Track::TrackMode::MidiCv);
+        project.setTrackMode(0, Track::TrackMode::Stochastic);
+        expectEqual(int(Track::TrackMode::MidiCv), int(project.track(0).trackMode()));
+
+        TrackModeListModel modes(project);
+        modes.edit(0, 1, 1, false);
+        modes.toProject(project);
+        expectEqual(int(Track::TrackMode::Arp), int(project.track(0).trackMode()));
+
+        modes.edit(0, 1, 1, false);
+        modes.toProject(project);
+        expectEqual(int(Track::TrackMode::Arp), int(project.track(0).trackMode()));
+
+        modes.edit(0, 1, -1, false);
+        modes.toProject(project);
+        expectEqual(int(Track::TrackMode::MidiCv), int(project.track(0).trackMode()));
+    }
+
     CASE("Boolean targets use Schmitt thresholds") {
         int16_t discrete = 0;
         bool active = false;
@@ -68,7 +89,8 @@ UNIT_TEST("Routing") {
         expectTrue(Routing::targetSupportedByTrackMode(Routing::Target::CurveMin, uint8_t(Track::TrackMode::Curve)));
         expectTrue(!Routing::targetSupportedByTrackMode(Routing::Target::CurveMin, uint8_t(Track::TrackMode::Note)));
 
-        expectTrue(Routing::targetSupportedByTrackMode(Routing::Target::GateProbabilityBias, uint8_t(Track::TrackMode::Stochastic)));
+        expectTrue(!Routing::targetSupportedByTrackMode(Routing::Target::GateProbabilityBias, uint8_t(Track::TrackMode::Stochastic)));
+        expectTrue(!Routing::targetSupportedByTrackMode(Routing::Target::GateProbabilityBias, uint8_t(Track::TrackMode::Logic)));
         expectTrue(Routing::targetSupportedByTrackMode(Routing::Target::GateProbabilityBias, uint8_t(Track::TrackMode::Curve)));
         expectTrue(!Routing::targetSupportedByTrackMode(Routing::Target::ShapeProbabilityBias, uint8_t(Track::TrackMode::Note)));
 
@@ -82,23 +104,11 @@ UNIT_TEST("Routing") {
         project.clear();
         project.setTrackMode(0, Track::TrackMode::Note);
         project.setTrackMode(1, Track::TrackMode::Curve);
-        project.setTrackMode(2, Track::TrackMode::Stochastic);
+        project.setTrackMode(2, Track::TrackMode::Arp);
 
         const uint8_t tracks = (1 << 0) | (1 << 1) | (1 << 2);
         expectEqual(uint8_t(1 << 1), project.routing().supportedTracks(Routing::Target::ShapeProbabilityBias, tracks));
         expectEqual(uint8_t((1 << 0) | (1 << 2)), project.routing().supportedTracks(Routing::Target::Scale, tracks));
-    }
-
-    CASE("Stochastic track bias routing writes existing routed parameters") {
-        Project project;
-        project.clear();
-        project.setTrackMode(0, Track::TrackMode::Stochastic);
-        auto &track = project.track(0).stochasticTrack();
-
-        Routing::setRouted(Routing::Target::GateProbabilityBias, 1 << 0, true);
-        track.writeRouted(Routing::Target::GateProbabilityBias, 3, 3.f);
-        expectEqual(3, track.gateProbabilityBias());
-        Routing::setRouted(Routing::Target::GateProbabilityBias, 1 << 0, false);
     }
 
     CASE("Routed divisor modulation snaps to known musical divisors") {

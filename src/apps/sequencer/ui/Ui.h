@@ -42,8 +42,6 @@ public:
     bool launchpadGeneratorsModeActiveForTest() const {
         return _pages.noteSequenceEdit.launchpadGeneratorModeActive() ||
                _pages.curveSequenceEdit.launchpadGeneratorModeActive() ||
-               _pages.stochasticSequenceEdit.launchpadGeneratorModeActive() ||
-               _pages.logicSequenceEdit.launchpadGeneratorModeActive() ||
                _pages.arpSequenceEdit.launchpadGeneratorModeActive();
     }
 
@@ -82,6 +80,9 @@ private:
     KeyState _pageKeyState;
     KeyState _globalKeyState;
     KeyPressEventTracker _keyPressEventTracker;
+    bool _randomScaleKeyHeld = false;
+    bool _restoreScaleKeyHeld = false;
+    uint32_t _randomScaleState = 0x4f1bbcdc;
     Leds _leds;
 
     MessageManager _messageManager;
