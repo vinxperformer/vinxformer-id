@@ -17,10 +17,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: .25em; }
 a:hover, a:focus-visible { color: var(--accent); }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
-.legacy-shortcut { position: absolute; top: 28px; right: 36px; color: var(--performer-link); font-size: .78rem; letter-spacing: .06em; text-decoration: none; z-index: 1; }
-.legacy-shortcut span { color: var(--performer-accent); }
-.legacy-shortcut:hover, .legacy-shortcut:focus-visible { color: var(--performer-link-hover); }
-.legacy-shortcut:focus-visible, .links a:focus-visible { outline-color: var(--performer-accent); }
+.performer-links a:focus-visible { outline-color: var(--performer-accent); }
 
 .manifesto { min-height: min(64vh, 640px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 64px 24px; }
 .eyebrow { margin: 0 0 32px; color: var(--muted); font-size: clamp(.75rem, 1.15vw, .95rem); letter-spacing: .075em; }
@@ -55,7 +52,9 @@ h2 { max-width: 380px; margin: 24px 0 0; font-size: clamp(1.55rem, 2.25vw, 2.2re
 .id-links a span { color: var(--accent); }
 .id-links a:hover, .id-links a:focus-visible { background: var(--accent); color: var(--background); }
 .id-links a:hover span, .id-links a:focus-visible span { color: var(--background); }
-.performer-links { margin-top: 14px; }
+.performer-links { margin-top: 14px; gap: 8px; }
+.performer-links a { min-height: 30px; padding: 5px 10px; font-size: .72rem; font-weight: 600; letter-spacing: 0; }
+.performer-links a span { margin-left: 6px; }
 .primary-link { background: var(--performer-bg); color: var(--performer-link); }
 .primary-link:hover, .primary-link:focus-visible { background: var(--performer-link); color: var(--performer-bg); }
 .secondary-link { color: var(--performer-link); }
@@ -63,7 +62,6 @@ h2 { max-width: 380px; margin: 24px 0 0; font-size: clamp(1.55rem, 2.25vw, 2.2re
 footer { max-width: 1060px; margin: 0 auto; padding: 26px 36px 42px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; letter-spacing: .06em; }
 
 @media (max-width: 720px) {
-  .legacy-shortcut { top: 20px; right: 24px; }
   .manifesto { min-height: 500px; }
   h1 { font-size: clamp(2.15rem, 8.3vw, 4rem); }
   .mark { margin-bottom: 36px; }

@@ -9,11 +9,11 @@
 - The new Permutation generator can work on multiple selected Note tracks. Each generation rerolls step position and pitch from the original sequence; Original/Permuted preview lets you compare before applying. MOVE and PITCH default to ±3.
 - `SHIFT + PERF` chooses another Project musical scale. Repeated presses choose again; `SHIFT + PATT` returns to the stored Project scale.
 - Project scale changes no longer rewrite sequence notes. Returning to a scale restores the same notes, provided the sequence has not been edited meanwhile. The Project root stays the same across musical scales.
-- No desktop or web simulator is distributed with ID.
+- No desktop or web simulator is distributed with VINX|FORMER ID.
 
 ## Before installing
 
-Back up your SD card and projects. ID rejects projects containing Stochastic or Logic Tracks and resets the loaded state to the default project; the rejected file on the SD card is not overwritten. Use Vinx PER|FORMER to edit or export those tracks. Other supported track modes continue to use the `Version41` project format.
+Back up your SD card and projects. VINX|FORMER ID rejects projects containing Stochastic or Logic Tracks and resets the loaded state to the default project; the rejected file on the SD card is not overwritten. Use Vinx PER|FORMER to edit or export those tracks. Other supported track modes continue to use the `Version41` project format.
 
 Copy `UPDATE.DAT` to the SD card and use the module's normal bootloader update procedure. This DAT identifies as `VINX|FORMER ID v0.1.1`.
 
@@ -23,4 +23,4 @@ Copy `UPDATE.DAT` to the SD card and use the module's normal bootloader update p
 
 The STM32 build and focused software tests passed. The release DAT matches the current sequencer source snapshot. Hardware installation, SD-card behavior, and the two Launchpads remain unverified.
 
-More detail: [ID technical report](https://github.com/vinxperformer/vinxformer-id/blob/main/doc/VINXFORMER.md).
+More detail: [VINX|FORMER ID technical report](https://github.com/vinxperformer/vinxformer-id/blob/main/doc/VINXFORMER.md).

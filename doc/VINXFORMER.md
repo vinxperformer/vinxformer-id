@@ -17,7 +17,7 @@ Both builds used the same ARM GCC 6.3.1 toolchain, Release configuration, STM32 
 | Baseline | 760,056 bytes | 165,708 bytes |
 | VINX|FORMER ID v0.1.1 after external 16-step mode removal | 633,744 bytes | 161,680 bytes |
 
-The branch frees **126,312 bytes of flash** and **4,028 bytes of RAM** against the baseline. Removing the external 16-step mode saved **5,176 bytes of flash** and **4 bytes of RAM** compared with the previous ID v0.1.1 build. The RAM saving is in CCM RAM. These figures include the new version string, compatibility guard, controller pruning, Permutation, and Random Scale.
+The branch frees **126,312 bytes of flash** and **4,028 bytes of RAM** against the baseline. Removing the external 16-step mode saved **5,176 bytes of flash** and **4 bytes of RAM** compared with the previous VINX|FORMER ID v0.1.1 build. The RAM saving is in CCM RAM. These figures include the new version string, compatibility guard, controller pruning, Permutation, and Random Scale.
 
 The `.bss` change is entirely in CCM RAM; the regular RAM `.bss` stays at 111,528 bytes. The linker script allocates 960 KiB of ROM, 128 KiB of regular RAM, and 64 KiB of CCM RAM to this application.
 
@@ -25,11 +25,11 @@ The source is compiled from a temporary path without spaces because the bundled 
 
 ## Controllers
 
-The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles. The external 16-step editing mode and its Launch Control XL controller profile have been removed. ID does not distribute desktop or web simulators; the source still contains a simulator test harness, including a Launchpad Mk2 adapter for existing UI regression tests.
+The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles. The external 16-step editing mode and its Launch Control XL controller profile have been removed. VINX|FORMER ID does not distribute desktop or web simulators; the source still contains a simulator test harness, including a Launchpad Mk2 adapter for existing UI regression tests.
 
-## ID site
+## VINX|FORMER ID site
 
-The `docs/` directory now contains a single-page VINX|FORMER ID statement based on the supplied color and copy reference. It gives only a short account of the differences from Vinx PER|FORMER. The inherited manual, simulator website, controller templates, and BeatStep Pro script are not part of the ID site. The original Vinx PER|FORMER repository and site remain separate.
+The `docs/` directory now contains a single-page VINX|FORMER ID statement based on the supplied color and copy reference. It gives only a short account of the differences from Vinx PER|FORMER. The inherited manual, simulator website, controller templates, and BeatStep Pro script are not part of the VINX|FORMER ID site. The original Vinx PER|FORMER repository and site remain separate.
 
 ## Pattern snapshot
 
