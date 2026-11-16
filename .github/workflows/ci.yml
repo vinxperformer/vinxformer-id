@@ -4,7 +4,7 @@ on:
   push:
   workflow_dispatch:
   pull_request:
-    branches: ["vinxformer"]
+    branches: ["main"]
 
 permissions:
   contents: read
