@@ -2,8 +2,6 @@
 
 **Built for one. Shared with everyone.**
 
-This is the first public firmware release of VINX|FORMER ID, a personal fork of Vinx PER|FORMER. Installation and controller behavior on physical hardware have not yet been verified.
-
 ## Compared with Vinx PER|FORMER
 
 - Stochastic and Logic Tracks have been removed.
