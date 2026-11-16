@@ -4,9 +4,9 @@
 
 VINX|FORMER ID is Vinx Scorza's experimental fork of [Vinx PER|FORMER](https://github.com/VinxScorza/performer), itself based on the [Mebitek](https://github.com/mebitek/performer) and [Westlicht](https://github.com/westlicht/performer) PER|FORMER projects. ID and Vinx PER|FORMER are separate projects. The [ID website](https://vinxperformer.github.io/vinxformer-id/) explains the direction of this fork; the [firmware hub](https://vinxperformer.github.io/) links both projects.
 
-This source identifies as **VINX|FORMER ID v0.1.1**. The [v0.1.1 firmware prerelease](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.1) is experimental: hardware installation and Launchpad behavior are not yet verified. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
+This source identifies as **VINX|FORMER ID v0.1.1**. The [v0.1.1 firmware release](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.1) is experimental: hardware installation and Launchpad behavior are not yet verified. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
 
-## What changes in ID
+## What changes in ID compared with Vinx PER|FORMER
 
 - Stochastic and Logic Tracks are removed from the interface and runtime.
 - Only Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles are supported. External 16-step editing and Launch Control XL support are removed.
