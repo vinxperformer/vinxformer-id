@@ -183,7 +183,7 @@ void CurveTrackEngine::triggerStep(uint32_t tick, uint32_t divisor) {
         _cycleShapeActive = _curveTrack.randomShape();
     }
     if (_cycleShapeActive) {
-        if (_cycleShape.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), _cycleShapeRng)) {
+        if (_cycleShape.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), _sequenceState.iteration(), _cycleShapeRng)) {
             _cycleShape.apply(sequence);
         }
     }

@@ -11,6 +11,7 @@ public:
     void reset() {
         _stepCount = 0;
         _seed = 0;
+        _initialized = false;
     }
 
     static int cycleLength(Types::RunMode runMode, int firstStep, int lastStep) {
@@ -23,10 +24,18 @@ public:
         }
     }
 
-    bool advance(Types::RunMode runMode, int firstStep, int lastStep, Random &rng) {
-        const bool newCycle = _stepCount == 0;
+    bool advance(Types::RunMode runMode, int firstStep, int lastStep, uint32_t iteration, Random &rng) {
+        const bool settingsChanged = !_initialized || runMode != _runMode || firstStep != _firstStep || lastStep != _lastStep;
+        const bool randomRun = runMode == Types::RunMode::Random || runMode == Types::RunMode::RandomWalk;
+        if (settingsChanged) _stepCount = 0;
+        const bool newCycle = randomRun ? _stepCount == 0 : settingsChanged || iteration != _lastIteration;
         if (newCycle) _seed = rng.next();
-        _stepCount = (_stepCount + 1) % cycleLength(runMode, firstStep, lastStep);
+        if (randomRun) _stepCount = (_stepCount + 1) % cycleLength(runMode, firstStep, lastStep);
+        _initialized = true;
+        _runMode = runMode;
+        _firstStep = firstStep;
+        _lastStep = lastStep;
+        _lastIteration = iteration;
         return newCycle;
     }
 
@@ -54,4 +63,9 @@ public:
 private:
     int _stepCount = 0;
     uint32_t _seed = 0;
+    uint32_t _lastIteration = 0;
+    int _firstStep = -1;
+    int _lastStep = -1;
+    Types::RunMode _runMode = Types::RunMode::Last;
+    bool _initialized = false;
 };
