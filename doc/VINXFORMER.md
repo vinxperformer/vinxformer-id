@@ -2,9 +2,9 @@
 
 This local development branch starts from Vinx PER|FORMER `v0.4.6-beta.2` (firmware source at commit `b1e95b58`). Stochastic Track and Logic Track are no longer selectable. Their runtime engines, sequence pages, generator branches, clipboard actions, and Launchpad UI branches have been removed. The Note track's Logic connection controls are hidden.
 
-The local firmware identity is `VINX|FORMER ID v0.1.2`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.2`; these are separate from the project file format version.
+The local firmware identity is `VINX|FORMER ID v0.1.3`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.3`; these are separate from the project file format version.
 
-The resident bootloader may append `(0.1.2)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
+The resident bootloader may append `(0.1.3)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
 
 The legacy mode identifiers and serialization code remain so that old project data is read without mistaking another mode for it. A project containing either removed track mode is rejected and reset to the default project; the file on the SD card is not rewritten by that failed load. Back up projects before testing this build. Projects containing only Note, Curve, MIDI/CV, and Arp tracks remain on the `Version41` format. The original firmware is needed to edit or export removed tracks.
 
@@ -17,8 +17,9 @@ Both builds used the same ARM GCC 6.3.1 toolchain, Release configuration, STM32 
 | Baseline | 760,056 bytes | 165,708 bytes |
 | VINX|FORMER ID v0.1.1 after external 16-step mode removal | 633,744 bytes | 161,680 bytes |
 | VINX|FORMER ID v0.1.2 with Random Shape | 634,340 bytes | 161,680 bytes |
+| VINX|FORMER ID v0.1.3 with visible Shape changes | 634,564 bytes | 161,680 bytes |
 
-The v0.1.2 build uses 596 bytes more flash than v0.1.1 and the same measured RAM. It remains **125,716 bytes below the baseline in flash** and **4,028 bytes below in RAM**. The RAM saving is in CCM RAM. These are static linker measurements, not runtime memory or hardware validation.
+The v0.1.3 build uses 224 bytes more flash than v0.1.2 and the same measured RAM. It remains **125,492 bytes below the baseline in flash** and **4,028 bytes below in RAM**. The RAM saving is in CCM RAM. These are static linker measurements, not runtime memory or hardware validation.
 
 The `.bss` change is entirely in CCM RAM; the regular RAM `.bss` stays at 111,528 bytes. The linker script allocates 960 KiB of ROM, 128 KiB of regular RAM, and 64 KiB of CCM RAM to this application.
 
@@ -30,9 +31,9 @@ The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profile
 
 ## Random Shape on Curve tracks
 
-On the module, open a Curve track's Track page and set **Random Shape** to **On**. Each active step receives a shape from the complete Curve shape catalog at the start of a cycle. The assignments stay fixed for that cycle and are regenerated on the next one. Forward and Backward use the active First–Last step span; Pendulum and PingPong include their return journey. Random and Random Walk use one active-span count of step advances as a cycle.
+On the module, open a Curve track's Track page and set **Random Shape** to **On**. At the start of each cycle, the firmware writes a new shape from the complete Curve shape catalog into every active step of the current pattern. The shapes are visible in the sequencer and stay fixed until the next cycle. Forward and Backward use the active First–Last step span; Pendulum and PingPong include their return journey. Random and Random Walk use one active-span count of step advances as a cycle.
 
-This is a live, per-track option. It never rewrites the stored sequence and turns off when a project is loaded or the track is initialized; the project file remains `Version41`. Switching it Off returns playback to the stored shapes. Min, Max, Gate, Shape Variation and probability values are not edited. Existing Shape Variation or Fill behavior can still override the audible shape on an individual step. The effect uses a separate random stream so gate and variation draws are not shifted by its cycle changes.
+The On/Off option is temporary and per track: it turns off when a project is loaded or the track is initialized. The generated Shape values remain in the sequence when switched Off and are saved if the project is saved; the project file remains `Version41`. Min, Max, Gate, Shape Variation and probability values are not edited. Existing Shape Variation or Fill behavior can still override the audible shape on an individual step. The effect uses a separate random stream so gate and variation draws are not shifted by its cycle changes.
 
 ## VINX|FORMER ID site
 

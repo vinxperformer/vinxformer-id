@@ -4,14 +4,14 @@
 
 VINX|FORMER ID is Vinx Scorza's experimental fork of [Vinx PER|FORMER](https://github.com/VinxScorza/performer), itself based on the [Mebitek](https://github.com/mebitek/performer) and [Westlicht](https://github.com/westlicht/performer) PER|FORMER projects. VINX|FORMER ID and Vinx PER|FORMER are separate projects. The [VINX|FORMER ID website](https://vinxperformer.github.io/vinxformer-id/) explains the direction of this fork; the [firmware hub](https://vinxperformer.github.io/) links both projects.
 
-This local source identifies as **VINX|FORMER ID v0.1.2**. The [v0.1.1 firmware release](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.1) remains the latest published release. Hardware installation and Launchpad behavior of v0.1.2 have not been verified. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
+This local source identifies as **VINX|FORMER ID v0.1.3**. The [v0.1.1 firmware release](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.1) remains the latest published release. Hardware installation and Launchpad behavior of v0.1.3 have not been verified. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
 
 ## What changes in VINX|FORMER ID compared with Vinx PER|FORMER
 
 - Stochastic and Logic Tracks are removed from the interface and runtime.
 - Only Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles are supported. External 16-step editing and Launch Control XL support are removed.
 - Permutation rerolls timing and pitch on one or more selected Note tracks. Each generation starts from the original, with a reversible Original/Permuted preview. MOVE and PITCH default to ±3.
-- On Curve tracks, Track → Random Shape selects a new shape for every active step on each cycle. It uses the full shape catalog, changes only the live shape, and returns to the stored shapes when turned off. The setting is temporary and is not saved with the project.
+- On Curve tracks, Track → Random Shape writes a new shape into every active step at the start of each cycle, using the full shape catalog. The new shapes are visible in the sequencer. Turning the option off keeps the latest shapes; saving the project saves them. The On/Off option itself is temporary.
 - `SHIFT + PERF` chooses another Project musical scale; repeated presses choose again. `SHIFT + PATT` restores the stored Project scale.
 - Changing the Project scale does not rewrite sequence notes. Returning to a scale restores the same notes when the sequence has not been edited in the meantime. The Project root is retained across musical scales.
 - No desktop or web simulator is distributed for VINX|FORMER ID. Simulator code remains in the repository for development tests.

@@ -17,7 +17,7 @@ UNIT_TEST("Cycle Shape") {
     CASE("Shapes remain stable within a cycle and reroll at the boundary") {
         Random rng(0x12345678u);
         CycleShape cycle;
-        cycle.advance(Types::RunMode::Forward, 0, 3, rng);
+        expectTrue(cycle.advance(Types::RunMode::Forward, 0, 3, rng));
         const uint32_t firstSeed = cycle.seed();
         int firstShapes[4];
         for (int step = 0; step < 4; ++step) {
@@ -25,30 +25,56 @@ UNIT_TEST("Cycle Shape") {
             expectTrue(firstShapes[step] >= 0 && firstShapes[step] < Curve::Last);
         }
         for (int advance = 1; advance < 4; ++advance) {
-            cycle.advance(Types::RunMode::Forward, 0, 3, rng);
+            expectTrue(!cycle.advance(Types::RunMode::Forward, 0, 3, rng));
             expectEqual(cycle.seed(), firstSeed);
             for (int step = 0; step < 4; ++step) expectEqual(cycle.shape(step), firstShapes[step]);
         }
-        cycle.advance(Types::RunMode::Forward, 0, 3, rng);
+        expectTrue(cycle.advance(Types::RunMode::Forward, 0, 3, rng));
         expectTrue(cycle.seed() != firstSeed);
         cycle.reset();
         expectEqual(cycle.seed(), uint32_t(0));
     }
 
-    CASE("Live mode never rewrites stored step layers") {
+    CASE("Each new cycle updates only active step shapes") {
         CurveTrack track;
-        track.sequence(0).step(0).setShape(Curve::Triangle);
-        track.sequence(0).step(0).setMin(31);
-        track.sequence(0).step(0).setMax(190);
-        track.sequence(0).step(0).setGate(5);
-        const auto original = track.sequence(0).step(0);
+        auto &sequence = track.sequence(0);
+        sequence.setFirstStep(1);
+        sequence.setLastStep(2);
+        for (int index = 0; index < 4; ++index) {
+            auto &step = sequence.step(index);
+            step.setShape(Curve::Triangle);
+            step.setShapeVariation(Curve::Bell);
+            step.setShapeVariationProbability(3);
+            step.setMin(31);
+            step.setMax(190);
+            step.setGate(5);
+            step.setGateProbability(2);
+        }
+        const auto outsideBefore = sequence.step(0);
+        const auto firstBefore = sequence.step(1);
+        const auto secondBefore = sequence.step(2);
         track.setRandomShape(true);
         Random rng(17);
         CycleShape cycle;
-        cycle.advance(Types::RunMode::Forward, 0, 3, rng);
-        cycle.shape(0);
-        expectTrue(track.sequence(0).step(0) == original);
+        expectTrue(cycle.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), rng));
+        cycle.apply(sequence);
+        expectTrue(sequence.step(0) == outsideBefore);
+        expectTrue(sequence.step(1).shape() != firstBefore.shape());
+        expectTrue(sequence.step(2).shape() != secondBefore.shape());
+        expectEqual(sequence.step(1).min(), firstBefore.min());
+        expectEqual(sequence.step(1).max(), firstBefore.max());
+        expectEqual(sequence.step(1).gate(), firstBefore.gate());
+        expectEqual(sequence.step(1).shapeVariation(), firstBefore.shapeVariation());
+        expectEqual(sequence.step(1).shapeVariationProbability(), firstBefore.shapeVariationProbability());
+        expectEqual(sequence.step(1).gateProbability(), firstBefore.gateProbability());
+        const auto previousFirst = sequence.step(1).shape();
+        expectTrue(!cycle.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), rng));
+        expectEqual(sequence.step(1).shape(), previousFirst);
+        expectTrue(cycle.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), rng));
+        cycle.apply(sequence);
+        expectTrue(sequence.step(1).shape() != previousFirst);
+        const int lastShape = sequence.step(1).shape();
         track.setRandomShape(false);
-        expectTrue(track.sequence(0).step(0) == original);
+        expectEqual(sequence.step(1).shape(), lastShape);
     }
 }

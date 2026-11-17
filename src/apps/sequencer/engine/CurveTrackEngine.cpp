@@ -14,10 +14,10 @@
 
 static Random rng;
 
-static float evalStepShape(const CurveSequence::Step &step, int baseShape, bool variation, bool invert, float fraction, int direction) {
-    auto function = Curve::function(Curve::Type(variation ? step.shapeVariation() : baseShape));
+static float evalStepShape(const CurveSequence::Step &step, bool variation, bool invert, float fraction, int direction) {
+    auto function = Curve::function(Curve::Type(variation ? step.shapeVariation() : step.shape()));
     if (direction == -1) {
-        function = Curve::function(Curve::Type(variation ? step.shapeVariation() : Curve::revAt(baseShape)));
+        function = Curve::function(Curve::Type(variation ? step.shapeVariation() : Curve::revAt(step.shape())));
     }
     float value = function(fraction);
     if (invert) {
@@ -176,17 +176,19 @@ void CurveTrackEngine::triggerStep(uint32_t tick, uint32_t divisor) {
     int shapeProbabilityBias = _curveTrack.shapeProbabilityBias();
     int gateProbabilityBias = _curveTrack.gateProbabilityBias();
 
-    const auto &sequence = *_sequence;
+    auto &sequence = *_sequence;
     _currentStep = SequenceUtils::rotateStep(_sequenceState.step(), sequence.firstStep(), sequence.lastStep(), rotate);
-    const auto &step = sequence.step(_currentStep);
-
     if (_cycleShapeActive != _curveTrack.randomShape()) {
         _cycleShape.reset();
         _cycleShapeActive = _curveTrack.randomShape();
     }
     if (_cycleShapeActive) {
-        _cycleShape.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), _cycleShapeRng);
+        if (_cycleShape.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), _cycleShapeRng)) {
+            _cycleShape.apply(sequence);
+        }
     }
+
+    const auto &step = sequence.step(_currentStep);
 
     _shapeVariation = evalShapeVariation(step, shapeProbabilityBias);
 
@@ -244,8 +246,7 @@ void CurveTrackEngine::updateOutput(uint32_t relativeTick, uint32_t divisor) {
         const auto &evalSequence = fillNextPattern ? *_fillSequence : *_sequence;
         const auto &step = evalSequence.step(_currentStep);
 
-        const int baseShape = (_cycleShapeActive && _curveTrack.randomShape()) ? _cycleShape.shape(_currentStep) : step.shape();
-        float value = evalStepShape(step, baseShape, _shapeVariation || fillVariation, fillInvert, _currentStepFraction, _sequenceState.direction());
+        float value = evalStepShape(step, _shapeVariation || fillVariation, fillInvert, _currentStepFraction, _sequenceState.direction());
         value = range.denormalize(value);
 
         float min = float(_curveTrack.min()) / CurveSequence::Min::Max;

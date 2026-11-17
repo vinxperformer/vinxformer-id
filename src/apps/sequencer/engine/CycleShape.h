@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/Curve.h"
+#include "model/CurveSequence.h"
 #include "model/Types.h"
 #include "core/utils/Random.h"
 
@@ -23,9 +23,20 @@ public:
         }
     }
 
-    void advance(Types::RunMode runMode, int firstStep, int lastStep, Random &rng) {
-        if (_stepCount == 0) _seed = rng.next();
+    bool advance(Types::RunMode runMode, int firstStep, int lastStep, Random &rng) {
+        const bool newCycle = _stepCount == 0;
+        if (newCycle) _seed = rng.next();
         _stepCount = (_stepCount + 1) % cycleLength(runMode, firstStep, lastStep);
+        return newCycle;
+    }
+
+    void apply(CurveSequence &sequence) const {
+        for (int index = sequence.firstStep(); index <= sequence.lastStep(); ++index) {
+            auto &step = sequence.step(index);
+            int nextShape = shape(index);
+            if (nextShape == step.shape()) nextShape = (nextShape + 1) % int(Curve::Last);
+            step.setShape(nextShape);
+        }
     }
 
     int shape(int stepIndex) const {

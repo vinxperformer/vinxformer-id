@@ -4,10 +4,10 @@
 
 // Version tag
 #define CONFIG_VERSION_MAGIC            0xfadebabe
-#define CONFIG_VERSION_NAME             "VINX|FORMER ID v0.1.2"
+#define CONFIG_VERSION_NAME             "VINX|FORMER ID v0.1.3"
 #define CONFIG_VERSION_MAJOR            0
 #define CONFIG_VERSION_MINOR            1
-#define CONFIG_VERSION_REVISION         2
+#define CONFIG_VERSION_REVISION         3
 
 // Task priorities
 #define CONFIG_DRIVER_TASK_PRIORITY     5
