@@ -14,10 +14,10 @@
 
 static Random rng;
 
-static float evalStepShape(const CurveSequence::Step &step, bool variation, bool invert, float fraction, int direction) {
-    auto function = Curve::function(Curve::Type(variation ? step.shapeVariation() : step.shape()));
+static float evalStepShape(const CurveSequence::Step &step, int baseShape, bool variation, bool invert, float fraction, int direction) {
+    auto function = Curve::function(Curve::Type(variation ? step.shapeVariation() : baseShape));
     if (direction == -1) {
-        function = Curve::function(Curve::Type(variation ? step.shapeVariation() : Curve::revAt(step.shape())));
+        function = Curve::function(Curve::Type(variation ? step.shapeVariation() : Curve::revAt(baseShape)));
     }
     float value = function(fraction);
     if (invert) {
@@ -43,6 +43,8 @@ void CurveTrackEngine::reset() {
     _currentStep = -1;
     _currentStepFraction = 0.f;
     _shapeVariation = false;
+    _cycleShape.reset();
+    _cycleShapeActive = false;
     _fillMode = CurveTrack::FillMode::None;
     _activity = false;
     _gateOutput = false;
@@ -57,6 +59,7 @@ void CurveTrackEngine::restart() {
     _sequenceState.reset();
     _currentStep = -1;
     _currentStepFraction = 0.f;
+    _cycleShape.reset();
 }
 
 TrackEngine::TickResult CurveTrackEngine::tick(uint32_t tick) {
@@ -163,6 +166,7 @@ void CurveTrackEngine::update(float dt) {
 void CurveTrackEngine::changePattern() {
     _sequence = &_curveTrack.sequence(pattern());
     _fillSequence = &_curveTrack.sequence(std::min(pattern() + 1, CONFIG_PATTERN_COUNT - 1));
+    _cycleShape.reset();
 }
 
 void CurveTrackEngine::triggerStep(uint32_t tick, uint32_t divisor) {
@@ -175,6 +179,14 @@ void CurveTrackEngine::triggerStep(uint32_t tick, uint32_t divisor) {
     const auto &sequence = *_sequence;
     _currentStep = SequenceUtils::rotateStep(_sequenceState.step(), sequence.firstStep(), sequence.lastStep(), rotate);
     const auto &step = sequence.step(_currentStep);
+
+    if (_cycleShapeActive != _curveTrack.randomShape()) {
+        _cycleShape.reset();
+        _cycleShapeActive = _curveTrack.randomShape();
+    }
+    if (_cycleShapeActive) {
+        _cycleShape.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), _cycleShapeRng);
+    }
 
     _shapeVariation = evalShapeVariation(step, shapeProbabilityBias);
 
@@ -232,7 +244,8 @@ void CurveTrackEngine::updateOutput(uint32_t relativeTick, uint32_t divisor) {
         const auto &evalSequence = fillNextPattern ? *_fillSequence : *_sequence;
         const auto &step = evalSequence.step(_currentStep);
 
-        float value = evalStepShape(step, _shapeVariation || fillVariation, fillInvert, _currentStepFraction, _sequenceState.direction());
+        const int baseShape = (_cycleShapeActive && _curveTrack.randomShape()) ? _cycleShape.shape(_currentStep) : step.shape();
+        float value = evalStepShape(step, baseShape, _shapeVariation || fillVariation, fillInvert, _currentStepFraction, _sequenceState.direction());
         value = range.denormalize(value);
 
         float min = float(_curveTrack.min()) / CurveSequence::Min::Max;

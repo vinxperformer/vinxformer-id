@@ -1,6 +1,7 @@
 include_directories(../../../apps/sequencer)
 
 register_test(TestCurve TestCurve.cpp)
+register_test(TestCycleShape TestCycleShape.cpp)
 register_test(TestGeneratorSemantics TestGeneratorSemantics.cpp)
 register_test(TestNoteSequence TestNoteSequence.cpp)
 register_test(TestProjectScaleRemap TestProjectScaleRemap.cpp)
@@ -12,6 +13,7 @@ if(${PLATFORM} STREQUAL "sim")
 endif()
 
 target_link_libraries(TestGeneratorSemantics sequencer_shared)
+target_link_libraries(TestCycleShape sequencer_shared)
 target_link_libraries(TestNoteSequence sequencer_shared)
 target_link_libraries(TestProjectScaleRemap sequencer_shared)
 target_link_libraries(TestRouting sequencer_shared)

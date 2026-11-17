@@ -56,6 +56,7 @@ private:
         TrackName,
         PlayMode,
         FillMode,
+        RandomShape,
         MuteMode,
         GateOutputMode,
         SlideTime,
@@ -75,6 +76,7 @@ private:
         case TrackName:             return "Name";
         case PlayMode:              return "Play Mode";
         case FillMode:              return "Fill Mode";
+        case RandomShape:           return "Random Shape";
         case MuteMode:              return "Mute Mode";
         case GateOutputMode:        return "Gate Out Mode";
         case SlideTime:             return "Slide Time";
@@ -105,6 +107,9 @@ private:
             break;
         case FillMode:
             _track->printFillMode(str);
+            break;
+        case RandomShape:
+            _track->printRandomShape(str);
             break;
         case MuteMode:
             _track->printMuteMode(str);
@@ -153,6 +158,9 @@ private:
             break;
         case FillMode:
             _track->editFillMode(value, shift);
+            break;
+        case RandomShape:
+            _track->editRandomShape(value);
             break;
         case MuteMode:
             _track->editMuteMode(value, shift);

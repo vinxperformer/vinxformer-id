@@ -4,6 +4,7 @@
 #include "SequenceState.h"
 #include "SortedQueue.h"
 #include "CurveRecorder.h"
+#include "CycleShape.h"
 
 #include "model/Track.h"
 
@@ -11,7 +12,8 @@ class CurveTrackEngine : public TrackEngine {
 public:
     CurveTrackEngine(Engine &engine, Model &model, Track &track, const TrackEngine *linkedTrackEngine) :
         TrackEngine(engine, model, track, linkedTrackEngine),
-        _curveTrack(track.curveTrack())
+        _curveTrack(track.curveTrack()),
+        _cycleShapeRng(0xa5f15207u + uint32_t(track.trackIndex()))
     {
         reset();
     }
@@ -73,6 +75,9 @@ private:
     int _currentStep;
     float _currentStepFraction;
     bool _shapeVariation;
+    CycleShape _cycleShape;
+    Random _cycleShapeRng;
+    bool _cycleShapeActive = false;
     CurveTrack::FillMode _fillMode;
 
     bool _activity;

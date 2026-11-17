@@ -93,6 +93,16 @@ public:
         str(fillModeName(fillMode()));
     }
 
+    // Live playback option; intentionally not serialized with projects.
+    bool randomShape() const { return _randomShape; }
+    void setRandomShape(bool enabled) { _randomShape = enabled; }
+    void editRandomShape(int value) {
+        if (value != 0) _randomShape = value > 0;
+    }
+    void printRandomShape(StringBuilder &str) const {
+        str(_randomShape ? "On" : "Off");
+    }
+
     // muteMode
 
     MuteMode muteMode() const { return _muteMode; }
@@ -309,6 +319,7 @@ private:
     int8_t _trackIndex = -1;
     Types::PlayMode _playMode;
     FillMode _fillMode;
+    bool _randomShape = false;
     MuteMode _muteMode;
     Types::GateOutputMode _gateOutputMode;
     Routable<uint8_t> _slideTime;

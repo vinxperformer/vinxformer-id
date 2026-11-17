@@ -33,6 +33,7 @@ void CurveTrack::writeRouted(Routing::Target target, int intValue, float floatVa
 void CurveTrack::clear() {
     setPlayMode(Types::PlayMode::Aligned);
     setFillMode(FillMode::None);
+    setRandomShape(false);
     setMuteMode(MuteMode::LastValue);
     setGateOutputMode(Types::GateOutputMode::Gate);
     setSlideTime(10);
@@ -69,6 +70,7 @@ void CurveTrack::write(VersionedSerializedWriter &writer) const {
 }
 
 void CurveTrack::read(VersionedSerializedReader &reader) {
+    setRandomShape(false);
     reader.read(_name, NameLength + 1, ProjectVersion::Version33);
     reader.read(_playMode);
     reader.read(_fillMode);
