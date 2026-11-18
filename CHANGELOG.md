@@ -1,5 +1,7 @@
 # Changelog
 
+VINX|FORMER ID has a [separate changelog](doc/ID_CHANGELOG.md). The entries below document the inherited Vinx PER|FORMER history.
+
 ## Vinx Scorza fork
 
 <sub>Starting from `v0.3.2-vinx.1` (16 March 2026), this changelog includes changes specific to the Vinx Scorza fork. All entries below `v0.3.2-vinx.1` are inherited from the Mebitek fork history and are kept here as upstream reference. From the first standalone Vinx release onward, Vinx uses standalone semantic versioning (`v0.x.y`) while preserving the earlier `v0.3.2-vinx.*` entries as historical lineage. I try to preserve backward compatibility with older projects, settings, and workflows where possible, but I do not guarantee it for Vinx-specific changes.</sub>

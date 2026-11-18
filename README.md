@@ -16,7 +16,7 @@ This local source identifies as **VINX|FORMER ID v0.1.6**. The [v0.1.1 firmware 
 - Changing the Project scale does not rewrite sequence notes. Returning to a scale restores the same notes when the sequence has not been edited in the meantime. The Project root is retained across musical scales.
 - No desktop or web simulator is distributed for VINX|FORMER ID. Simulator code remains in the repository for development tests.
 
-See [the VINX|FORMER ID technical report](doc/VINXFORMER.md) for the controls, measured memory use, and implementation details.
+See the [VINX|FORMER ID changelog](doc/ID_CHANGELOG.md), [v0.1.6 local update notes](doc/RELEASE_0.1.6.md), and [technical report](doc/VINXFORMER.md) for version history, installation, controls, and measured memory use.
 
 ## Project compatibility
 
