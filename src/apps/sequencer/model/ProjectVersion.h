@@ -122,6 +122,9 @@ enum ProjectVersion {
     // added project MIDI input event filter
     Version41 = 41,
 
+    // persist per-track Curve Random Shape mode
+    Version42 = 42,
+
 
     // automatically derive latest version
     Last,

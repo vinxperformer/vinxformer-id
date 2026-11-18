@@ -93,7 +93,7 @@ public:
         str(fillModeName(fillMode()));
     }
 
-    // Live playback option; intentionally not serialized with projects.
+    // Per-track playback option, persisted with projects from Version42.
     bool randomShape() const { return _randomShape; }
     void setRandomShape(bool enabled) { _randomShape = enabled; }
     void editRandomShape(int value) {
