@@ -1,8 +1,8 @@
 # Vinx|former track removal and memory report
 
-This local development branch starts from Vinx PER|FORMER `v0.4.6-beta.2` (firmware source at commit `b1e95b58`). Stochastic Track and Logic Track are no longer selectable. Their runtime engines, sequence pages, generator branches, clipboard actions, and Launchpad UI branches have been removed. The Note track's Logic connection controls are hidden.
+This firmware source starts from Vinx PER|FORMER `v0.4.6-beta.2` (firmware source at commit `b1e95b58`). Stochastic Track and Logic Track are no longer selectable. Their runtime engines, sequence pages, generator branches, clipboard actions, and Launchpad UI branches have been removed. The Note track's Logic connection controls are hidden.
 
-The local firmware identity is `VINX|FORMER ID v0.1.6`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.6`; these are separate from the project file format version.
+The firmware identity is `VINX|FORMER ID v0.1.6`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.6`; these are separate from the project file format version.
 
 The resident bootloader may append `(0.1.6)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
 

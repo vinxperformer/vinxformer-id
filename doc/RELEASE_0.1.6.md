@@ -1,6 +1,6 @@
 # VINX|FORMER ID v0.1.6 — local update
 
-This local build follows the published v0.1.1 release. It adds **Random Shape** to Curve tracks and supersedes the local v0.1.2–v0.1.5 DAT files. It has not been published on GitHub.
+This local build follows the published v0.1.1 release. It adds **Random Shape** to Curve tracks and supersedes the local v0.1.2–v0.1.5 DAT files. Its DAT has not been published as a GitHub release.
 
 ## Random Shape
 

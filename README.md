@@ -4,7 +4,7 @@
 
 VINX|FORMER ID is Vinx Scorza's experimental fork of [Vinx PER|FORMER](https://github.com/VinxScorza/performer), itself based on the [Mebitek](https://github.com/mebitek/performer) and [Westlicht](https://github.com/westlicht/performer) PER|FORMER projects. VINX|FORMER ID and Vinx PER|FORMER are separate projects. The [VINX|FORMER ID website](https://vinxperformer.github.io/vinxformer-id/) explains the direction of this fork; the [firmware hub](https://vinxperformer.github.io/) links both projects.
 
-This local source identifies as **VINX|FORMER ID v0.1.6**. The [v0.1.1 firmware release](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.1) remains the latest published release. Hardware installation and Launchpad behavior of v0.1.6 have not been verified. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
+This source identifies as **VINX|FORMER ID v0.1.6**. The [v0.1.1 firmware release](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.1) remains the latest published release. Hardware installation and Launchpad behavior of v0.1.6 have not been verified. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
 
 ## What changes in VINX|FORMER ID compared with Vinx PER|FORMER
 
