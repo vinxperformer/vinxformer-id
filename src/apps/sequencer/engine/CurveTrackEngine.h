@@ -69,8 +69,8 @@ private:
     int _monitorStepIndex = -1;
     MonitorLevel _monitorStepLevel = MonitorLevel::Min;
 
-    CurveSequence *_sequence;
-    CurveSequence *_fillSequence;
+    CurveSequence *_sequence = nullptr;
+    CurveSequence *_fillSequence = nullptr;
     SequenceState _sequenceState;
     int _currentStep;
     float _currentStepFraction;

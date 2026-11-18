@@ -164,9 +164,10 @@ void CurveTrackEngine::update(float dt) {
 }
 
 void CurveTrackEngine::changePattern() {
-    _sequence = &_curveTrack.sequence(pattern());
+    auto *sequence = &_curveTrack.sequence(pattern());
+    if (_sequence != sequence) _cycleShape.reset();
+    _sequence = sequence;
     _fillSequence = &_curveTrack.sequence(std::min(pattern() + 1, CONFIG_PATTERN_COUNT - 1));
-    _cycleShape.reset();
 }
 
 void CurveTrackEngine::triggerStep(uint32_t tick, uint32_t divisor) {

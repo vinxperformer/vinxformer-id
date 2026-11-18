@@ -88,6 +88,25 @@ UNIT_TEST("Cycle Shape") {
         expectTrue(cycle.advance(Types::RunMode::Random, 4, 6, 0, rng));
     }
 
+    CASE("A 64-step Curve loop does not reroll after 16 steps") {
+        CurveTrack track;
+        auto &sequence = track.sequence(0);
+        sequence.setFirstStep(0);
+        sequence.setLastStep(63);
+        sequence.setDivisor(48); // 1/4
+        sequence.setResetMeasure(0);
+        Random stepRng(41);
+        Random shapeRng(43);
+        SequenceState state;
+        CycleShape cycle;
+        state.reset();
+        for (int absoluteStep = 0; absoluteStep <= 128; ++absoluteStep) {
+            state.advanceAligned(absoluteStep, sequence.runMode(), sequence.firstStep(), sequence.lastStep(), stepRng);
+            const bool rerolled = cycle.advance(sequence.runMode(), sequence.firstStep(), sequence.lastStep(), state.iteration(), shapeRng);
+            expectEqual(rerolled, absoluteStep == 0 || absoluteStep == 64 || absoluteStep == 128);
+        }
+    }
+
     CASE("Each new cycle updates only active step shapes") {
         CurveTrack track;
         auto &sequence = track.sequence(0);
