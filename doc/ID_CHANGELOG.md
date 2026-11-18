@@ -1,8 +1,8 @@
 # VINX|FORMER ID changelog
 
-This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.6 are local builds; v0.1.1 remains the latest published release.
+This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.5 were local builds; v0.1.6 is the latest published release.
 
-## v0.1.6 — local build, 18 November 2026
+## v0.1.6 — release, 18 November 2026
 
 - Save Random Shape On/Off separately for each Curve track in the project.
 - Read older `Version41` projects with Random Shape Off; saving now writes `Version42`. Older firmware may not reopen the newly saved project.

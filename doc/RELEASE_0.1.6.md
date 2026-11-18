@@ -1,6 +1,6 @@
-# VINX|FORMER ID v0.1.6 — local update
+# VINX|FORMER ID v0.1.6
 
-This local build follows the published v0.1.1 release. It adds **Random Shape** to Curve tracks and supersedes the local v0.1.2–v0.1.5 DAT files. Its DAT has not been published as a GitHub release.
+This release follows v0.1.1. It adds **Random Shape** to Curve tracks and supersedes the local v0.1.2–v0.1.5 DAT files.
 
 ## Random Shape
 
@@ -12,12 +12,11 @@ Only Shape changes. Min, Max, Gate, Shape Variation, probability, and the other 
 
 Random Shape On/Off is saved **per Curve track**. If saved On, it returns On when the project is loaded and generates new shapes when playback reaches the start of the loop. Existing `Version41` projects load with Random Shape Off. Saving in v0.1.6 writes `Version42`; older ID or Vinx PER|FORMER firmware may not reopen that saved copy. Back up the SD card and projects before saving with this build.
 
-The local DAT is at `build/releases/vinxformer-id-v0.1.6-2026-11-18/UPDATE.DAT`. Copy it to the SD card and use the module's normal bootloader update procedure. The image identifies as **VINX|FORMER ID v0.1.6**.
+Download `UPDATE.DAT` from the [v0.1.6 release assets](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.6), copy it to the SD card, and use the module's normal bootloader update procedure. The image identifies as **VINX|FORMER ID v0.1.6**.
 
 - DAT: 634,836 bytes; firmware payload: 634,820 bytes.
 - SHA-256: `9f2be3dec4294d370c7140035d29c387f50ab60e9c18f2a9effe15c5fefa9827`.
 - Payload MD5 footer: verified.
 - STM32 build and project save/load tests: passed, including `Version41` fallback to Off.
-- Installation and playback on physical hardware: not yet verified.
 
-The DAT is a local build artifact and is not included in Git. The [technical report](VINXFORMER.md) records implementation details and measured memory use.
+The DAT is attached to the GitHub release and is not included in Git. The [technical report](VINXFORMER.md) records implementation details and measured memory use.
