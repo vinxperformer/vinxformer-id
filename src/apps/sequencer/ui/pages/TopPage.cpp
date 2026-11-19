@@ -104,6 +104,7 @@ void TopPage::keyPress(KeyPressEvent &event) {
             _mode == Mode::Routing ||
             _mode == Mode::MidiOutput ||
             _mode == Mode::UserScale ||
+            _mode == Mode::Modulator ||
             _mode == Mode::Clock) {
             setMode(Mode::SequenceEdit);
         }
@@ -200,6 +201,9 @@ void TopPage::setMode(Mode mode) {
         break;
     case Mode::UserScale:
         setMainPage(pages.userScale);
+        break;
+    case Mode::Modulator:
+        setMainPage(pages.modulator);
         break;
     case Mode::Monitor:
         setMainPage(pages.monitor);

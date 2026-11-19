@@ -97,6 +97,7 @@ set(sources
     ui/pages/LayoutPage.cpp
     ui/pages/ListPage.cpp
     ui/pages/MidiOutputPage.cpp
+    ui/pages/ModulatorPage.cpp
     ui/pages/MonitorPage.cpp
     ui/pages/NoteSequenceEditPage.cpp
     ui/pages/NoteSequencePage.cpp

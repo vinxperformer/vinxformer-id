@@ -125,6 +125,9 @@ enum ProjectVersion {
     // persist per-track Curve Random Shape mode
     Version42 = 42,
 
+    // eight saved CV modulators (old projects load with all modulators off)
+    Version43 = 43,
+
 
     // automatically derive latest version
     Last,

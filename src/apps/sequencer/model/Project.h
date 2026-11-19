@@ -12,6 +12,7 @@
 #include "UserScale.h"
 #include "Routing.h"
 #include "MidiOutput.h"
+#include "Modulator.h"
 #include "Serialize.h"
 #include "FileDefs.h"
 
@@ -32,6 +33,7 @@ public:
     typedef std::array<Track, CONFIG_TRACK_COUNT> TrackArray;
     typedef std::array<uint8_t, CONFIG_CHANNEL_COUNT> CvOutputTrackArray;
     typedef std::array<uint8_t, CONFIG_CHANNEL_COUNT> GateOutputArray;
+    typedef std::array<Modulator, CONFIG_MODULATOR_COUNT> ModulatorArray;
 
     enum class MidiInputEvent : uint8_t {
         Notes,
@@ -390,6 +392,9 @@ public:
 
     // song
 
+    const Modulator &modulator(int index) const { return _modulators[index]; }
+    Modulator &modulator(int index) { return _modulators[index]; }
+
     const Song &song() const { return _song; }
           Song &song()       { return _song; }
 
@@ -681,6 +686,7 @@ private:
     PlayState _playState;
     Routing _routing;
     MidiOutput _midiOutput;
+    ModulatorArray _modulators;
 
     uint8_t _stepsToStop = 0;
     uint8_t _recordDelay = 0;

@@ -1,6 +1,14 @@
 # VINX|FORMER ID changelog
 
-This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.5 were local builds; v0.1.6 is the latest published release.
+This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.5 were local builds.
+
+## v0.1.7 — release, 19 November 2026
+
+- Add eight modulators adapted from [modulove/performer](https://github.com/modulove/performer), with fixed Mod 1→CV 1 through Mod 8→CV 8 assignment, individual On/Off, and Off by default.
+- Keep modulove's Sine, Triangle, Saw Up, Saw Down, Square, Random and ADSR shapes and their controls. Add selectable Curve-style unipolar or bipolar 1–5 V ranges. Gate outputs and patterns remain independent.
+- Open the page with PAGE + Track 6. Save modulator settings in `Version43` projects; older projects load with all modulators Off.
+- Make ADSR timing follow the actual tempo and fix release to start from the level reached when the gate fell.
+- [Installation and verification notes](RELEASE_0.1.7.md).
 
 ## v0.1.6 — release, 18 November 2026
 

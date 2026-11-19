@@ -209,6 +209,13 @@ void Engine::update() {
             }
         }
 
+        for (int index = 0; index < CONFIG_MODULATOR_COUNT; ++index) {
+            const auto &modulator = _project.modulator(index);
+            int gateTrack = modulator.gateTrack();
+            bool gate = _trackEngines[gateTrack]->gateOutput(0);
+            _modulatorEngine.tick(tick, modulator, index, gate, tempo());
+        }
+
         // update midi outputs, force sending CC on first tick
         if (tick == 0) {
             _midiOutputEngine.update(true);
@@ -586,8 +593,16 @@ void Engine::updateTrackOutputs() {
             _gateOutput.setGate(trackIndex, outputGate);
         }
         int cvOutputTrack = cvOutputTracks[trackIndex];
+        int cvIndex = trackCvIndex[cvOutputTrack]++;
         if (!_cvOutputOverride) {
-            _cvOutput.setChannel(trackIndex, _trackEngines[cvOutputTrack]->cvOutput(trackCvIndex[cvOutputTrack]++));
+            const auto &modulator = _project.modulator(trackIndex);
+            if (modulator.enabled()) {
+                const auto &range = Types::voltageRangeInfo(modulator.range());
+                float normalized = float(_modulatorEngine.currentValue(trackIndex)) / 127.f;
+                _cvOutput.setChannel(trackIndex, range.denormalize(normalized));
+            } else {
+                _cvOutput.setChannel(trackIndex, _trackEngines[cvOutputTrack]->cvOutput(cvIndex));
+            }
         }
     }
 }
@@ -598,6 +613,7 @@ void Engine::reset() {
     }
 
     _midiOutputEngine.reset();
+    _modulatorEngine.reset();
 }
 
 bool allPatternsEqual(PlayState playState) {

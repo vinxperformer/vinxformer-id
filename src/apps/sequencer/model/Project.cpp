@@ -92,6 +92,7 @@ void Project::clear() {
     _playState.clear();
     _routing.clear();
     _midiOutput.clear();
+    for (auto &modulator : _modulators) modulator.clear();
 
     for (size_t i = 0; i < UserScale::userScales.size(); ++i) {
         auto &userScale = UserScale::userScales[i];
@@ -278,6 +279,7 @@ void Project::write(VersionedSerializedWriter &writer) const {
     writer.write(_selectedPatternIndex);
     writer.write(_resetCvOnStop);
     writer.write(_useMultiCv);
+    writeArray(writer, _modulators);
 
     writer.writeHash();
 
@@ -335,6 +337,9 @@ bool Project::read(VersionedSerializedReader &reader) {
     reader.read(_selectedPatternIndex);
     reader.read(_resetCvOnStop, ProjectVersion::Version38);
     reader.read(_useMultiCv, ProjectVersion::Version39);
+    if (reader.dataVersion() >= ProjectVersion::Version43) {
+        readArray(reader, _modulators);
+    }
 
     bool success = reader.checkHash();
     for (const auto &track : _tracks) {

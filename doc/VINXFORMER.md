@@ -2,15 +2,15 @@
 
 This firmware source starts from Vinx PER|FORMER `v0.4.6-beta.2` (firmware source at commit `b1e95b58`). Stochastic Track and Logic Track are no longer selectable. Their runtime engines, sequence pages, generator branches, clipboard actions, and Launchpad UI branches have been removed. The Note track's Logic connection controls are hidden.
 
-The firmware identity is `VINX|FORMER ID v0.1.6`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.6`; these are separate from the project file format version.
+The current build identifies as `VINX|FORMER ID v0.1.7`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.7`; these are separate from the project file format version.
 
-The resident bootloader may append `(0.1.6)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
+The resident bootloader may append `(0.1.7)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
 
-The legacy mode identifiers and serialization code remain so that old project data is read without mistaking another mode for it. A project containing either removed track mode is rejected and reset to the default project; the file on the SD card is not rewritten by that failed load. Back up projects before testing this build. v0.1.6 reads existing `Version41` projects and saves projects as `Version42` to preserve each Curve track's Random Shape setting. Older firmware may not read a project saved in `Version42`. The original firmware is needed to edit or export removed tracks.
+The legacy mode identifiers and serialization code remain so that old project data is read without mistaking another mode for it. A project containing either removed track mode is rejected and reset to the default project; the file on the SD card is not rewritten by that failed load. Back up projects before testing this build. v0.1.7 reads existing `Version41` and `Version42` projects and saves as `Version43` to preserve the eight modulators. They all default Off when loading an older project. Older firmware may not read a project saved in `Version43`. Vinx PER|FORMER is needed to edit or export removed tracks.
 
 ## Measured STM32 memory
 
-Both builds used the same ARM GCC 6.3.1 toolchain, Release configuration, STM32 target, and linked `sequencer` target. The baseline uses the unmodified source at `b1e95b58`; the branch is compared against it with `arm-none-eabi-size`. Measurements are build artifact sizes, not a hardware test.
+All listed builds used the same ARM GCC 6.3.1 toolchain, Release configuration, STM32 target, and linked `sequencer` target. The baseline uses the unmodified source at `b1e95b58`; the branch is compared against it with `arm-none-eabi-size`. Measurements are build artifact sizes, not a hardware test.
 
 | Build | Flash (`text + data`) | RAM (`data + bss`) |
 | --- | ---: | ---: |
@@ -21,16 +21,25 @@ Both builds used the same ARM GCC 6.3.1 toolchain, Release configuration, STM32 
 | VINX|FORMER ID v0.1.4 with track-loop timing | 634,724 bytes | 161,680 bytes |
 | VINX|FORMER ID v0.1.5 with stable 64-step loops | 634,740 bytes | 161,680 bytes |
 | VINX|FORMER ID v0.1.6 with saved Random Shape state | 634,820 bytes | 161,680 bytes |
+| VINX|FORMER ID v0.1.7 with eight CV modulators | 642,044 bytes | 162,216 bytes |
 
-The v0.1.6 build uses 80 bytes more flash than v0.1.5 and the same measured RAM. It remains **125,236 bytes below the baseline in flash** and **4,028 bytes below in RAM**. The RAM saving is in CCM RAM. These are static linker measurements, not runtime memory or hardware validation.
+The v0.1.7 build uses 7,224 bytes more flash and 536 bytes more RAM than v0.1.6. It remains **118,012 bytes below the baseline in flash** and **3,492 bytes below in RAM**. These are static linker measurements, not runtime memory or hardware validation.
 
-The `.bss` change is entirely in CCM RAM; the regular RAM `.bss` stays at 111,528 bytes. The linker script allocates 960 KiB of ROM, 128 KiB of regular RAM, and 64 KiB of CCM RAM to this application.
+For v0.1.7, regular RAM `.bss` is 111,724 bytes, CCM `.bss` is 47,088 bytes, and `.data` is 3,404 bytes. The linker script allocates 960 KiB of ROM, 128 KiB of regular RAM, and 64 KiB of CCM RAM to this application.
 
 The source is compiled from a temporary path without spaces because the bundled `libopencm3` makefiles do not handle the workspace path's spaces. The temporary build copy is not the deliverable; changes live in this repository.
 
 ## Controllers
 
 The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles. The external 16-step editing mode and its Launch Control XL controller profile have been removed. VINX|FORMER ID does not distribute desktop or web simulators; the source still contains a simulator test harness, including a Launchpad Mk2 adapter for existing UI regression tests.
+
+## Eight CV modulators (v0.1.7)
+
+The modulator model, waveform generator, and engine are adapted from [modulove/performer](https://github.com/modulove/performer) under its MIT license. VINX|FORMER ID keeps the seven shapes and their parameters: Sine, Triangle, Saw Up, Saw Down, Square, clocked or gate-triggered Random, and ADSR. LFOs provide Rate, Depth, Offset, Phase, and Free/Sync/Retrigger modes. Random provides Rate, Offset and Slew. ADSR provides Attack, Decay, Sustain, Release, and Level. Gate-triggered modes select the source track. ADSR times use the actual project tempo and release starts from the level at the falling gate edge.
+
+The assignment is fixed: Mod 1→CV 1 through Mod 8→CV 8. Each Mod starts Off in a new project and in projects saved before v0.1.7. Turning one On replaces the voltage on its matching CV output; turning it Off restores that output's existing track assignment. Gate outputs, track sequences, all 16 patterns, Song, MIDI, and internal routing are unaffected. Each Mod has Curve-style 0–1/2/3/4/5 V or ±1/2/3/4/5 V output ranges, defaulting to ±1 V. All eight settings are saved in the project (`Version43`).
+
+On the module, hold **PAGE** and press **Track 6**. Use Track 1–8 to choose a Mod. Use Left/Right to switch between the two parameter pages, F1–F5 to select a field, and the encoder to change its value. With ON/OFF selected, pressing the encoder also toggles the Mod. The page shows its current level and a waveform preview for LFO shapes.
 
 ## Random Shape on Curve tracks
 

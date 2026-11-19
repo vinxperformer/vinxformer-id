@@ -12,6 +12,7 @@
 #include "CvOutput.h"
 #include "RoutingEngine.h"
 #include "MidiOutputEngine.h"
+#include "ModulatorEngine.h"
 #include "ArpTrackEngine.h"
 #include "MidiPort.h"
 #include "MidiLearn.h"
@@ -113,6 +114,7 @@ public:
 
     const CvInput &cvInput() const { return _cvInput; }
     const CvOutput &cvOutput() const { return _cvOutput; }
+    const ModulatorEngine &modulatorEngine() const { return _modulatorEngine; }
     const uint8_t gateOutput() const { return _gateOutput.gates(); }
 
     // gate overrides
@@ -200,6 +202,7 @@ private:
 
     CvInput _cvInput;
     CvOutput _cvOutput;
+    ModulatorEngine _modulatorEngine;
 
     Clock _clock;
     TapTempo _tapTempo;

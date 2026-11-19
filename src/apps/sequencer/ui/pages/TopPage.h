@@ -27,6 +27,7 @@ public:
 
         // aux modes
         UserScale       = PageKeyMap::UserScale,
+        Modulator       = PageKeyMap::Modulator,
         Monitor         = PageKeyMap::Monitor,
         System          = PageKeyMap::System,
 

@@ -4,10 +4,10 @@
 
 // Version tag
 #define CONFIG_VERSION_MAGIC            0xfadebabe
-#define CONFIG_VERSION_NAME             "VINX|FORMER ID v0.1.6"
+#define CONFIG_VERSION_NAME             "VINX|FORMER ID v0.1.7"
 #define CONFIG_VERSION_MAJOR            0
 #define CONFIG_VERSION_MINOR            1
-#define CONFIG_VERSION_REVISION         6
+#define CONFIG_VERSION_REVISION         7
 
 // Task priorities
 #define CONFIG_DRIVER_TASK_PRIORITY     5
@@ -52,6 +52,7 @@
 #define CONFIG_SNAPSHOT_COUNT           1
 #define CONFIG_SONG_SLOT_COUNT          64
 #define CONFIG_TRACK_COUNT              8
+#define CONFIG_MODULATOR_COUNT          CONFIG_CV_OUTPUT_CHANNELS
 #define CONFIG_STEP_COUNT               64
 #define CONFIG_ROUTE_COUNT              16
 #define CONFIG_MIDI_OUTPUT_COUNT        16
