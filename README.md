@@ -13,8 +13,9 @@ This source identifies as **VINX|FORMER ID v0.1.7**. The [v0.1.7 firmware releas
 - **Random Shape on Curve tracks.** At each track-loop boundary, write new shapes into the active steps so they are visible in the sequencer. Only Shape changes. The per-track switch is saved with the project; switching it Off leaves the last shapes in place.
 - **Random Project Scale.** Press `SHIFT + PERF` repeatedly to audition other musical scales; `SHIFT + PATT` returns to the stored scale. The override does not rewrite steps or the saved Project scale.
 - **Reversible Project scale changes.** Changing the Project scale leaves stored Note steps intact. Returning to a scale restores the same pitches if those steps were not edited; the Project root stays fixed across musical scales.
-- **Focused track and controller set.** Stochastic and Logic Tracks, external 16-step editing, and Launch Control XL support are removed. The retained controller profiles are Launchpad Pro Mk1 and Launchpad Mini Mk3.
-- **Firmware-only distribution.** No desktop or web simulator is shipped; simulator code remains available for development tests.
+- **Removed track types.** Stochastic and Logic Tracks are no longer available in VINX|FORMER ID.
+- **Removed controller paths.** Launch Control XL support and external 16-step editing are gone. The supported controller profiles are Launchpad Pro Mk1 and Launchpad Mini Mk3.
+- **Removed simulator releases.** VINX|FORMER ID ships neither a desktop nor a web simulator; simulator code remains available for development tests.
 
 ## If you come from Mebitek
 
@@ -39,8 +40,6 @@ VINX|FORMER ID retains the [Vinx PER|FORMER](https://github.com/VinxScorza/perfo
 - Arpeggiator Track, pattern follow, and quick pattern chaining.
 - Sequence save/load slots, selected-step movement and undo, and expanded Curve CV recording.
 - Launchpad performance controls and panel shortcuts to Project, Routing, MIDI Output, and User Scale pages.
-
-Mebitek's Stochastic and Logic Tracks are intentionally absent from VINX|FORMER ID.
 
 See the [VINX|FORMER ID changelog](doc/ID_CHANGELOG.md), [v0.1.7 release notes](doc/RELEASE_0.1.7.md), and [technical report](doc/VINXFORMER.md) for version history, installation, controls, and measured memory use.
 
