@@ -49,18 +49,53 @@
         <h2 id="lineage-title">What changes in VINX|FORMER ID compared with Vinx PER|FORMER.</h2>
       </div>
       <div class="lineage-copy">
-        <p>VINX|FORMER ID grows out of Vinx PER|FORMER. They are separate firmware projects. Vinx PER|FORMER has its own website, manual, and releases.</p>
-        <p class="delta">Compared with Vinx PER|FORMER, VINX|FORMER ID makes room for a smaller, more personal workflow:</p>
+        <p>VINX|FORMER ID grows out of Vinx PER|FORMER as a separate firmware line. These are the operational changes in ID, ordered by their impact on performance.</p>
         <ul class="delta-list">
-          <li><strong>Tracks:</strong> Stochastic and Logic Tracks are removed.</li>
-          <li><strong>Controllers:</strong> the supported profiles are Launchpad Pro Mk1 and Launchpad Mini Mk3.</li>
-          <li><strong>Editing:</strong> the external 16-step editing mode is removed.</li>
-          <li><strong>Permutation:</strong> reroll the timing and pitch of events on one or more selected Note tracks. Each new permutation starts from the original; MOVE and PITCH default to ±3, with Original/Permuted preview.</li>
-          <li><strong>Random Shape:</strong> each Curve track can choose new shapes at the start of its loop. The On/Off setting is saved with the project.</li>
-          <li><strong>Random Scale:</strong> <code>SHIFT + PERF</code> picks another Project musical scale; <code>SHIFT + PATT</code> returns to the stored scale, even after repeated choices.</li>
-          <li><strong>Scale changes:</strong> the Project root stays put, and returning to a scale restores the same notes when the sequence has not been edited meanwhile.</li>
-          <li><strong>CV modulators:</strong> eight independent modulators, adapted from <a href="https://github.com/modulove/performer">modulove/performer</a>, with fixed Mod 1→CV 1 through Mod 8→CV 8 assignment. Each starts Off and can use a unipolar or bipolar 1–5 V range.</li>
-          <li><strong>Simulators:</strong> VINX|FORMER ID does not ship a desktop or web simulator.</li>
+          <li><strong>Eight CV modulators.</strong> Mod 1 drives CV 1 through Mod 8 driving CV 8. Each starts Off; On replaces only that output's track CV. Sine, Triangle, Saw Up, Saw Down, Square, Random, and ADSR are adapted from <a href="https://github.com/modulove/performer">modulove/performer</a>. Choose 0–1/2/3/4/5 V or ±1/2/3/4/5 V.</li>
+          <li><strong>Permutation on selected Note tracks.</strong> Reroll step position and pitch on one or several tracks. Compare ORIGINAL and PERMUTED before applying; every reroll starts from the captured original. MOVE and PITCH default to ±3.</li>
+          <li><strong>Random Shape on Curve tracks.</strong> Write new shapes into the active steps at each track-loop boundary. Only Shape changes. The per-track switch is saved; Off leaves the last shapes in place.</li>
+          <li><strong>Random Project Scale.</strong> Repeat <code>SHIFT + PERF</code> to audition musical scales; <code>SHIFT + PATT</code> restores the stored scale. Sequence steps and the saved scale stay intact.</li>
+          <li><strong>Reversible Project scale changes.</strong> Changing scale leaves stored Note steps intact. Returning restores the same pitches if those steps were not edited; the Project root remains fixed.</li>
+          <li><strong>Focused set.</strong> Stochastic and Logic Tracks, external 16-step editing, and Launch Control XL support are removed. Launchpad Pro Mk1 and Launchpad Mini Mk3 remain.</li>
+          <li><strong>Firmware-only distribution.</strong> No desktop or web simulator is shipped; simulator code remains for development tests.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="lineage lineage-followup" aria-labelledby="mebitek-title">
+      <div class="section-heading">
+        <p class="section-number">03 / FROM MEBITEK</p>
+        <h2 id="mebitek-title">If you come from Mebitek.</h2>
+      </div>
+      <div class="lineage-copy">
+        <p class="delta">VINX|FORMER ID retains the Vinx PER|FORMER workflow changes built on the Mebitek fork, alongside the ID changes above:</p>
+        <ul class="delta-list">
+          <li><strong>Generate, compare, apply.</strong> Random, Acid, Chaos, and Euclidean provide source/preview comparison and Apply or Cancel. Acid can write one layer or a Gate + Note + Slide phrase; Chaos can target a sequence or pattern.</li>
+          <li><strong>Edit selected steps.</strong> Copy, Paste, and Duplicate preserve selection gaps. Tied Note steps share pitch edits; Curve steps expose Gate Offset and Gate Length.</li>
+          <li><strong>Change playback in place.</strong> A Fill divisor override changes playback temporarily without changing the saved divisor. Note, Curve, and Arp tracks can output Gate or a length-controlled Trigger.</li>
+          <li><strong>Filter MIDI input.</strong> Accept Notes, CC, Program Change, Pitch Bend, and Aftertouch independently. Note Off still releases active notes when incoming Notes are disabled.</li>
+          <li><strong>Perform from Launchpad.</strong> Pro Mk1 and Mini Mk3 provide track-aware generator selection, preview, reroll, cancel, and apply.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="lineage lineage-followup" aria-labelledby="foundation-title">
+      <div class="section-heading">
+        <p class="section-number">04 / THE FOUNDATION</p>
+        <h2 id="foundation-title">What remains from Westlicht and Mebitek.</h2>
+      </div>
+      <div class="lineage-copy">
+        <h3>From <a href="https://github.com/westlicht/performer">Westlicht PER|FORMER</a></h3>
+        <ul class="delta-list">
+          <li>Eight tracks, up to 64 steps per sequence, 16 patterns, Song, and a temporary pattern snapshot.</li>
+          <li>Note, Curve, and MIDI/CV tracks; eight CV/Gate output pairs, MIDI, clocking, scales, and project storage.</li>
+          <li>CV/MIDI routing, step conditions, probability, and the core panel workflow.</li>
+        </ul>
+        <h3>From <a href="https://github.com/mebitek/performer/blob/master/CHANGELOG.md">Mebitek PER|FORMER</a></h3>
+        <ul class="delta-list">
+          <li>Arpeggiator Track, pattern follow, and quick pattern chaining.</li>
+          <li>Sequence save/load slots, selected-step movement and undo, and expanded Curve CV recording.</li>
+          <li>Launchpad performance controls and panel shortcuts to Project, Routing, MIDI Output, and User Scale pages.</li>
         </ul>
         <p class="release-note">VINX|FORMER ID v0.1.7 is available. Back up projects before saving: this version uses the new Version43 project format, and older firmware may not reopen saved projects.</p>
         <div class="links id-links">

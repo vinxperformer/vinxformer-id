@@ -20,7 +20,7 @@ This source identifies as **VINX|FORMER ID v0.1.7**. The [v0.1.7 firmware releas
 
 VINX|FORMER ID retains the [Vinx PER|FORMER](https://github.com/VinxScorza/performer) workflow changes built on the [Mebitek fork](https://github.com/mebitek/performer), alongside the ID changes above:
 
-- **Generate with an explicit commit.** Random, Acid, Chaos, Euclidean, and Permutation use source/preview comparison and Apply or Cancel. Acid can write one layer or a Gate + Note + Slide phrase; Chaos can target a sequence or the current pattern.
+- **Generate with an explicit commit.** Random, Acid, Chaos, and Euclidean use source/preview comparison and Apply or Cancel. Acid can write one layer or a Gate + Note + Slide phrase; Chaos can target a sequence or the current pattern.
 - **Edit without losing step structure.** Selected-step Copy, Paste, and Duplicate preserve selection gaps and extend Last Step when needed. Tied Note steps share pitch edits; Curve steps have separate Gate Offset and Gate Length controls.
 - **Change playback without rewriting the sequence.** The Fill divisor override temporarily changes an independent track's playback division. Its stored divisor remains intact. Note, Curve, and Arp tracks can output a sustained Gate or a Trigger with a configurable length.
 - **Control incoming MIDI.** Project filters can independently accept Notes, CC, Program Change, Pitch Bend, and Aftertouch; disabling Notes still allows Note Off to release active notes.
