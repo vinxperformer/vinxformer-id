@@ -21,6 +21,7 @@ public:
         Steps,
         Beats,
         Offset,
+        Tie,
         Last
     };
 
@@ -33,6 +34,7 @@ public:
         uint8_t steps = 16;
         uint8_t beats = 4;
         uint8_t offset = 0;
+        uint8_t tie = 25;
     };
 
     static constexpr uint8_t DefaultDensity = 50;
@@ -42,6 +44,7 @@ public:
     static constexpr uint8_t DefaultSteps = 16;
     static constexpr uint8_t DefaultBeats = 4;
     static constexpr uint8_t DefaultOffset = 0;
+    static constexpr uint8_t DefaultTie = 25;
 
     AcidGenerator(SequenceBuilder &builder, Params &params, std::bitset<CONFIG_STEP_COUNT> &selected);
 
@@ -84,6 +87,9 @@ public:
     int offset() const { return _params.offset; }
     void setOffset(int offset) { _params.offset = clamp(offset, 0, int(_params.steps) - 1); }
 
+    int tie() const { return _params.tie; }
+    void setTie(int tie) { _params.tie = clamp(tie, 0, 100); }
+
     int displayValue(int index) const;
     AcidSequenceBuilder::ApplyMode applyMode() const { return _acidBuilder.applyMode(); }
     NoteSequence::Layer layer() const { return _acidBuilder.layer(); }
@@ -107,6 +113,7 @@ private:
     void updateLayerSlide(class Random &rng, const std::array<int, CONFIG_STEP_COUNT> &targetSteps, int targetCount);
     void updatePhrase(class Random &rng, const std::array<int, CONFIG_STEP_COUNT> &targetSteps, int targetCount);
     void updateEuclideanPhrase(class Random &rng, const std::array<int, CONFIG_STEP_COUNT> &targetSteps, int targetCount);
+    void applyHeldTies(const std::array<int, CONFIG_STEP_COUNT> &targetSteps, int targetCount);
 
     Params &_params;
     AcidSequenceBuilder &_acidBuilder;

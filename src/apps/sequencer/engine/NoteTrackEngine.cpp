@@ -462,7 +462,9 @@ void NoteTrackEngine::triggerStep(uint32_t tick, uint32_t divisor, bool forNextS
     }
 
     if (stepGate) {
-        uint32_t stepLength = (divisor * evalStepLength(step, _noteTrack.lengthBias())) / NoteSequence::Length::Range;
+        // A tie must reach the next step even when the track length bias is shorter.
+        uint32_t stepLength = step.tieForward() ? divisor :
+            (divisor * evalStepLength(step, _noteTrack.lengthBias())) / NoteSequence::Length::Range;
         int stepRetrigger = evalStepRetrigger(step, _noteTrack.retriggerProbabilityBias());
         if (stepRetrigger > 1) {
             uint32_t retriggerLength = divisor / stepRetrigger;

@@ -2,6 +2,11 @@
 
 This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.5 were local builds.
 
+## Unreleased
+
+- Acid Phrase and Acid Eucl Phrase can generate same-pitch held notes. The context menu's TIE setting controls how often a gated onset starts a held group (Off at 0%; default 25%). Within available adjacent steps, 90% of groups are 2–3 steps and 10% are 4–5; two-step groups are favored. These ties do not add Slide.
+- Tied steps keep the gate through the next step boundary even when track length bias would shorten it. The generator preview joins held steps visually.
+
 ## v0.1.7 — release, 19 November 2026
 
 - Add eight modulators adapted from [modulove/performer](https://github.com/modulove/performer), with fixed Mod 1→CV 1 through Mod 8→CV 8 assignment, individual On/Off, and Off by default.

@@ -1494,6 +1494,9 @@ void GeneratorPage::drawAcidGenerator(Canvas &canvas, const AcidGenerator &gener
             if (step.gate()) {
                 canvas.setColor(activeBank ? Color::Bright : Color::Medium);
                 canvas.fillRect(x0 + 1, gateTop + 1, width, gateHeight - 2);
+                if (step.tieForward() && i + 1 < steps && sequence.step(i + 1).gate()) {
+                    canvas.fillRect(x1 - 1, gateTop + 2, 2, gateHeight - 4);
+                }
 
                 const int y = noteY(step.note(), minNote, maxNote, noteTop, noteHeight);
                 drawStairStep(canvas, x0, x1, y, activeBank ? Color::Bright : Color::Medium);
@@ -1775,11 +1778,13 @@ void GeneratorPage::contextShow(bool doubleClick) {
             _contextMenuItems[1] = { "" };
         } else if (acidEuclideanPhraseGenerator(_generator)) {
             std::snprintf(_contextMenuAuxLabel, sizeof(_contextMenuAuxLabel), "RNG %d%%", acid->range());
-            _contextMenuItems[0] = { "" };
+            std::snprintf(_variationMenuLabel, sizeof(_variationMenuLabel), "TIE %d%%", acid->tie());
+            _contextMenuItems[0] = { _variationMenuLabel };
             _contextMenuItems[1] = { _contextMenuAuxLabel };
         } else {
             std::snprintf(_contextMenuAuxLabel, sizeof(_contextMenuAuxLabel), "DENS %d%%", acid->density());
-            _contextMenuItems[0] = { "" };
+            std::snprintf(_variationMenuLabel, sizeof(_variationMenuLabel), "TIE %d%%", acid->tie());
+            _contextMenuItems[0] = { _variationMenuLabel };
             _contextMenuItems[1] = { _contextMenuAuxLabel };
         }
         _contextMenuItems[2] = { "RESETGEN" };
@@ -1883,7 +1888,15 @@ void GeneratorPage::contextAction(int index) {
     }
 
     if (_generator->mode() == Generator::Mode::Random || _generator->mode() == Generator::Mode::Acid || euclideanGeneratorMode(_generator->mode())) {
-        if (index == 1) {
+        if (index == 0 && _generator->mode() == Generator::Mode::Acid && !acidLayerGenerator(_generator)) {
+            gGeneratorContextQuickEditModel.configure(_generator, 5, "TIE", [&] {
+                _launchpadResetState = false;
+                _previewArmed = true;
+                _generator->update();
+                _generator->showPreview();
+            });
+            _manager.pages().quickEdit.showCompact(gGeneratorContextQuickEditModel, 0, 1);
+        } else if (index == 1) {
             if (_generator->mode() == Generator::Mode::Random) {
                 gGeneratorContextQuickEditModel.configure(_generator, 1, "SMOOTH", [&] {
                     _launchpadResetState = false;

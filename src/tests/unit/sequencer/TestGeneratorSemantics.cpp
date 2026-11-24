@@ -170,6 +170,7 @@ UNIT_TEST("GeneratorSemantics") {
         params.offset = 0;
         params.range = 35;
         params.slide = 0;
+        params.tie = 0;
         params.variation = 100;
 
         AcidGenerator generator(builder, params, selected);
@@ -181,6 +182,84 @@ UNIT_TEST("GeneratorSemantics") {
         }
 
         expectEqual(6, gateCount);
+    }
+
+    CASE("Acid Phrase generates held notes without slide or crossing the selection") {
+        NoteSequence sequence;
+        sequence.clear();
+        sequence.setFirstStep(0);
+        sequence.setLastStep(15);
+        sequence.step(3).setGate(true);
+        sequence.step(3).setNote(7);
+
+        std::bitset<CONFIG_STEP_COUNT> selected;
+        for (int i = 4; i < 16; ++i) {
+            selected.set(i);
+        }
+
+        AcidSequenceBuilder builder(sequence, NoteSequence::Layer::Note, AcidSequenceBuilder::ApplyMode::Phrase, selected);
+        AcidGenerator::Params params;
+        params.seed = 0x76543210u;
+        params.density = 100;
+        params.slide = 0;
+        params.tie = 100;
+        params.variation = 100;
+
+        AcidGenerator generator(builder, params, selected);
+        const auto &preview = builder.previewSequence();
+        int tiedLinks = 0;
+        for (int i = 4; i < 16; ++i) {
+            const auto &step = preview.step(i);
+            if (!step.tieForward()) {
+                continue;
+            }
+            ++tiedLinks;
+            expectTrue(i < 15);
+            expectTrue(step.gate());
+            expectTrue(step.length() == NoteSequence::Length::Max);
+            expectTrue(!step.slide());
+            expectTrue(preview.step(i + 1).gate());
+            expectTrue(preview.step(i + 1).note() == step.note());
+            expectTrue(!preview.step(i + 1).slide());
+        }
+        expectTrue(tiedLinks > 0);
+        expectTrue(preview.step(3) == sequence.step(3));
+
+        generator.setTie(0);
+        generator.update();
+        for (int i = 4; i < 16; ++i) {
+            expectTrue(!builder.previewSequence().step(i).tieForward());
+        }
+    }
+
+    CASE("Acid Euclidean Phrase can extend an onset into a held note") {
+        NoteSequence sequence;
+        sequence.clear();
+        sequence.setFirstStep(0);
+        sequence.setLastStep(15);
+
+        std::bitset<CONFIG_STEP_COUNT> selected;
+        selectFirstSteps(selected, 16);
+        AcidSequenceBuilder builder(sequence, NoteSequence::Layer::Note, AcidSequenceBuilder::ApplyMode::EuclideanPhrase, selected);
+
+        AcidGenerator::Params params;
+        params.seed = 0x1A2B3C4Du;
+        params.steps = 16;
+        params.beats = 8;
+        params.slide = 0;
+        params.tie = 100;
+
+        AcidGenerator generator(builder, params, selected);
+        const auto &preview = builder.previewSequence();
+        int tiedLinks = 0;
+        for (int i = 0; i < 15; ++i) {
+            if (preview.step(i).tieForward()) {
+                ++tiedLinks;
+                expectTrue(preview.step(i).note() == preview.step(i + 1).note());
+                expectTrue(!preview.step(i + 1).slide());
+            }
+        }
+        expectTrue(tiedLinks > 0);
     }
 
     CASE("Acid Euclidean Phrase NEW RAND keeps generated params in valid ranges") {

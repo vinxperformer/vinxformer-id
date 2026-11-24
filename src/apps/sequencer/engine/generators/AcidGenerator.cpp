@@ -30,10 +30,10 @@ AcidGenerator::AcidGenerator(SequenceBuilder &builder, Params &params, std::bits
 
 int AcidGenerator::paramCount() const {
     if (_acidBuilder.applyMode() == AcidSequenceBuilder::ApplyMode::Phrase) {
-        return 5;
+        return 6;
     }
     if (_acidBuilder.applyMode() == AcidSequenceBuilder::ApplyMode::EuclideanPhrase) {
-        return 5;
+        return 6;
     }
 
     switch (_acidBuilder.layer()) {
@@ -48,7 +48,7 @@ int AcidGenerator::paramCount() const {
 
 AcidGenerator::Param AcidGenerator::visibleParam(int index) const {
     if (_acidBuilder.applyMode() == AcidSequenceBuilder::ApplyMode::Phrase) {
-        return Param(index);
+        return index == 5 ? Param::Tie : Param(index);
     }
     if (_acidBuilder.applyMode() == AcidSequenceBuilder::ApplyMode::EuclideanPhrase) {
         switch (index) {
@@ -57,6 +57,7 @@ AcidGenerator::Param AcidGenerator::visibleParam(int index) const {
         case 2: return Param::Steps;
         case 3: return Param::Beats;
         case 4: return Param::Range;
+        case 5: return Param::Tie;
         default: break;
         }
         return Param::Last;
@@ -104,6 +105,7 @@ const char *AcidGenerator::paramName(int index) const {
     case Param::Steps:     return "Steps";
     case Param::Beats:     return "Beats";
     case Param::Offset:    return "Offset";
+    case Param::Tie:       return "Tie";
     case Param::Last:      break;
     }
     return nullptr;
@@ -139,6 +141,9 @@ void AcidGenerator::editParam(int index, int value, bool shift) {
     case Param::Offset:
         setOffset(offset() + value);
         break;
+    case Param::Tie:
+        setTie(tie() + value);
+        break;
     case Param::Last:
         break;
     }
@@ -170,6 +175,9 @@ void AcidGenerator::printParam(int index, StringBuilder &str) const {
     case Param::Offset:
         str("%d", offset());
         break;
+    case Param::Tie:
+        str("%d%%", tie());
+        break;
     case Param::Last:
         break;
     }
@@ -183,6 +191,7 @@ void AcidGenerator::init() {
     setSteps(DefaultSteps);
     setBeats(DefaultBeats);
     setOffset(DefaultOffset);
+    setTie(DefaultTie);
     update();
 }
 
@@ -242,6 +251,7 @@ void AcidGenerator::randomizeContextParams() {
         case Param::Steps:
         case Param::Beats:
         case Param::Offset:
+        case Param::Tie:
         case Param::Seed:
         case Param::Last:
             break;
@@ -769,6 +779,70 @@ void AcidGenerator::updateEuclideanPhrase(Random &rng, const std::array<int, CON
     }
 }
 
+void AcidGenerator::applyHeldTies(const std::array<int, CONFIG_STEP_COUNT> &targetSteps, int targetCount) {
+    auto &preview = _acidBuilder.previewSequence();
+
+    // A phrase replaces its own tie links, even when Tie is set to zero.
+    for (int i = 0; i < targetCount; ++i) {
+        preview.step(targetSteps[i]).setTieForward(false);
+    }
+
+    if (tie() == 0) {
+        return;
+    }
+
+    // Keep tie choices independent of the existing gate/note/slide random stream.
+    Random rng(_params.seed ^ 0x5EED71E5u);
+    for (int i = 0; i < targetCount; ++i) {
+        const int headIndex = targetSteps[i];
+        if (!preview.step(headIndex).gate() || rng.nextRange(100) >= uint32_t(tie())) {
+            continue;
+        }
+
+        int available = 1;
+        while (available < 5 && i + available < targetCount &&
+               targetSteps[i + available] == headIndex + available) {
+            ++available;
+        }
+        if (available < 2) {
+            continue;
+        }
+
+        // Favor short held notes in a 16-step phrase: 90% are 2–3 steps.
+        const bool shortGroup = available < 4 || rng.nextRange(100) < 90;
+        const int minimum = shortGroup ? 2 : 4;
+        const int maximum = std::min(available, shortGroup ? 3 : 5);
+        const int groupLength = shortGroup && maximum == 3 ?
+            2 + (rng.nextRange(3) == 2 ? 1 : 0) :
+            minimum + int(rng.nextRange(maximum - minimum + 1));
+        const int note = preview.step(headIndex).note();
+
+        for (int offset = 0; offset < groupLength; ++offset) {
+            auto &step = preview.step(headIndex + offset);
+            step.setGate(true);
+            step.setNote(note);
+            step.setSlide(false);
+            step.setGateOffset(0);
+            step.setGateProbability(NoteSequence::GateProbability::Max);
+            step.setCondition(Types::Condition::Off);
+            step.setRetrigger(0);
+            step.setRetriggerProbability(0);
+            step.setLengthVariationRange(0);
+            step.setLengthVariationProbability(0);
+            step.setNoteVariationRange(0);
+            step.setNoteVariationProbability(0);
+            if (offset + 1 < groupLength) {
+                step.setLength(NoteSequence::Length::Max);
+                step.setTieForward(true);
+            } else {
+                step.setLength(std::min(step.length(), NoteSequence::Length::Max - 1));
+                step.setTieForward(false);
+            }
+        }
+        i += groupLength - 1;
+    }
+}
+
 void AcidGenerator::update() {
     _acidBuilder.resetPreview();
 
@@ -797,9 +871,11 @@ void AcidGenerator::update() {
         break;
     case AcidSequenceBuilder::ApplyMode::Phrase:
         updatePhrase(rng, targetSteps, targetCount);
+        applyHeldTies(targetSteps, targetCount);
         break;
     case AcidSequenceBuilder::ApplyMode::EuclideanPhrase:
         updateEuclideanPhrase(rng, targetSteps, targetCount);
+        applyHeldTies(targetSteps, targetCount);
         break;
     }
 
