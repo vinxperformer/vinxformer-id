@@ -4,6 +4,7 @@
 #include "Pages.h"
 
 #include "model/NoteSequence.h"
+#include "model/NoteTie.h"
 #include "model/FileManager.h"
 #include "model/ModelUtils.h"
 #include "ui/LedPainter.h"
@@ -518,7 +519,6 @@ void NoteSequenceEditPage::keyPress(KeyPressEvent &event) {
 
     if (key.isFunction()) {
         if(key.shiftModifier() && key.function() == 2 && _stepSelection.any()) {
-            _inMemorySequence = _project.selectedNoteSequence();
             tieNotes();
             event.consume();
             return;
@@ -1225,41 +1225,16 @@ void NoteSequenceEditPage::normalizeTieLinks(NoteSequence &sequence) {
 
 
 void NoteSequenceEditPage::tieNotes() {
-
     auto &sequence = _project.selectedNoteSequence();
-
-    if (_stepSelection.any()) {
-        int first=-1;
-        int last=-1;
-
-        for (size_t i = 0; i < sequence.steps().size(); ++i) {
-            if (_stepSelection[i]) {
-                if (first == -1 ) {
-                    first = i;
-                }
-                last = i;
-            }
-        }
-
-        if (first > 0) {
-            sequence.step(first - 1).setTieForward(false);
-        }
-
-        int headNote = sequence.step(first).note();
-        for (int i = first; i <= last; i++) {
-            auto &step = sequence.step(i);
-            step.setGate(true);
-            step.setNote(headNote);
-            if (i < last) {
-                step.setLength(NoteSequence::Length::Max);
-                step.setTieForward(true);
-            } else {
-                step.setTieForward(false);
-            }
-        }
-        normalizeTieLinks(sequence);
-        showMessage("NOTES TIED");
+    if (_stepSelection.count() < 2) {
+        showMessage("SELECT 2+ STEPS");
+        return;
     }
+
+    _inMemorySequence = sequence;
+    const auto result = NoteTie::toggleSelected(sequence, _stepSelection.selected());
+    normalizeTieLinks(sequence);
+    showMessage(result == NoteTie::Result::Untied ? "NOTES UNTIED" : "NOTES TIED");
 }
 
 void NoteSequenceEditPage::generateSequence() {

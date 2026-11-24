@@ -2,12 +2,59 @@
 
 #include "apps/sequencer/model/ClipBoard.h"
 #include "apps/sequencer/model/ModelUtils.h"
+#include "apps/sequencer/model/NoteTie.h"
 #include "apps/sequencer/model/Project.h"
 
 #include <array>
 #include <bitset>
 
 UNIT_TEST("NoteSequence") {
+
+    CASE("SHIFT F2 ties and unties the same selected step range") {
+        NoteSequence sequence;
+        sequence.clear();
+        sequence.step(3).setGate(true);
+        sequence.step(3).setTieForward(true);
+        sequence.step(4).setNote(5);
+        sequence.step(5).setNote(9);
+        sequence.step(6).setNote(12);
+
+        std::bitset<CONFIG_STEP_COUNT> selected;
+        selected.set(4);
+        selected.set(6);
+
+        expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::Tied);
+        expectTrue(!sequence.step(3).tieForward());
+        for (int i = 4; i <= 6; ++i) {
+            expectTrue(sequence.step(i).gate());
+            expectEqual(5, sequence.step(i).note());
+            expectEqual(i < 6, sequence.step(i).tieForward());
+            if (i < 6) {
+                expectEqual(NoteSequence::Length::Max, sequence.step(i).length());
+            }
+        }
+
+        expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::Untied);
+        for (int i = 4; i <= 6; ++i) {
+            expectTrue(sequence.step(i).gate());
+            expectEqual(5, sequence.step(i).note());
+            expectTrue(!sequence.step(i).tieForward());
+            if (i < 6) {
+                expectEqual(NoteSequence::Length::Max / 2, sequence.step(i).length());
+            }
+        }
+        expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::Tied);
+    }
+
+    CASE("SHIFT F2 with one selected step leaves the sequence unchanged") {
+        NoteSequence sequence;
+        sequence.clear();
+        const NoteSequence before = sequence;
+        std::bitset<CONFIG_STEP_COUNT> selected;
+        selected.set(4);
+        expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::NoRange);
+        expectTrue(sequence.step(4) == before.step(4));
+    }
 
     CASE("shiftSteps rotates full 64-step range right") {
         std::array<int, 64> steps = {};

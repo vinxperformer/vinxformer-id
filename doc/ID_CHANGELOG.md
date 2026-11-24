@@ -6,6 +6,7 @@ This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history rem
 
 - Acid Phrase and Acid Eucl Phrase can generate same-pitch held notes. The context menu's TIE setting controls how often a gated onset starts a held group (Off at 0%; default 25%). Within available adjacent steps, 90% of groups are 2–3 steps and 10% are 4–5; two-step groups are favored. These ties do not add Slide.
 - Tied steps keep the gate through the next step boundary even when track length bias would shorten it. The generator preview joins held steps visually.
+- In Note Steps, SHIFT + F2 toggles a held note across the range from the first to the last selected step. A second press removes the ties and gives the intermediate steps the normal half-step gate length; the pitches stay as edited.
 
 ## v0.1.7 — release, 19 November 2026
 
