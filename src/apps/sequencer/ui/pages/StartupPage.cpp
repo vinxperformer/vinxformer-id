@@ -54,7 +54,7 @@ void StartupPage::draw(Canvas &canvas) {
     canvas.setFont(Font::Small);
     canvas.drawTextCentered(0, 10, Width, 14, "VINX|FORMER ID");
     canvas.setFont(Font::Tiny);
-    canvas.drawTextCentered(0, 23, Width, 8, "v0.1.7");
+    canvas.drawTextCentered(0, 23, Width, 8, "v0.1.8");
 
     canvas.setColor(Color::Medium);
     canvas.hline(0, 32, Width);
