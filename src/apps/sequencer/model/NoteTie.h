@@ -12,6 +12,27 @@ enum class Result {
     Untied,
 };
 
+inline bool selectedAreHeld(const NoteSequence &sequence, const std::bitset<CONFIG_STEP_COUNT> &selected) {
+    int first = -1;
+    int last = -1;
+    for (int i = 0; i < CONFIG_STEP_COUNT; ++i) {
+        if (selected[i]) {
+            if (first < 0) first = i;
+            last = i;
+        }
+    }
+    if (first < 0 || last <= first) return false;
+
+    const int headNote = sequence.step(first).note();
+    for (int i = first; i < last; ++i) {
+        const auto &step = sequence.step(i);
+        const auto &next = sequence.step(i + 1);
+        if (!step.gate() || !step.tieForward() || step.length() != NoteSequence::Length::Max ||
+            !next.gate() || next.note() != headNote) return false;
+    }
+    return true;
+}
+
 inline Result toggleSelected(NoteSequence &sequence, const std::bitset<CONFIG_STEP_COUNT> &selected) {
     int first = -1;
     int last = -1;
@@ -28,16 +49,7 @@ inline Result toggleSelected(NoteSequence &sequence, const std::bitset<CONFIG_ST
     }
 
     const int headNote = sequence.step(first).note();
-    bool held = true;
-    for (int i = first; i < last; ++i) {
-        const auto &step = sequence.step(i);
-        const auto &next = sequence.step(i + 1);
-        if (!step.gate() || !step.tieForward() || step.length() != NoteSequence::Length::Max ||
-            !next.gate() || next.note() != headNote) {
-            held = false;
-            break;
-        }
-    }
+    const bool held = selectedAreHeld(sequence, selected);
 
     if (first > 0) {
         sequence.step(first - 1).setTieForward(false);

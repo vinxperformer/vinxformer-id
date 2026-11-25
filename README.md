@@ -4,13 +4,13 @@
 
 VINX|FORMER ID is Vinx Scorza's experimental fork of [Vinx PER|FORMER](https://github.com/VinxScorza/performer), itself based on the [Mebitek](https://github.com/mebitek/performer) and [Westlicht](https://github.com/westlicht/performer) PER|FORMER projects. VINX|FORMER ID and Vinx PER|FORMER are separate projects. The [VINX|FORMER ID website](https://vinxperformer.github.io/vinxformer-id/) explains the direction of this fork; the [firmware hub](https://vinxperformer.github.io/) links both projects.
 
-This source identifies as **VINX|FORMER ID v0.1.8**. The v0.1.8 DAT is a local test build. The latest [public firmware release is v0.1.7](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.7). The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
+This source identifies as **VINX|FORMER ID v0.1.9**. The v0.1.9 DAT is a local test build. The latest [public firmware release is v0.1.7](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.7). The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
 
 ## What changes in VINX|FORMER ID compared with Vinx PER|FORMER
 
 - **Eight CV modulators.** Mod 1 drives CV 1 through Mod 8 driving CV 8. Each starts Off; switching it On replaces that output's track CV without changing its Gate or sequence. Sine, Triangle, Saw Up, Saw Down, Square, Random, and ADSR are adapted from [modulove/performer](https://github.com/modulove/performer). Output ranges are selectable from 0–1/2/3/4/5 V or ±1/2/3/4/5 V.
 - **Permutation on selected Note tracks.** Reroll step position and pitch on one or several tracks at once. Compare ORIGINAL and PERMUTED before applying; each reroll starts from the captured original. MOVE and PITCH default to ±3.
-- **Acid held notes.** Acid Phrase and Acid Eucl Phrase can generate same-pitch ties without adding Slide. TIE controls their frequency; 90% of generated groups are 2–3 steps when enough adjacent steps are available. In Note Steps, `SHIFT + F2` now ties or unties the selected range.
+- **Acid held notes.** Acid Phrase and Acid Eucl Phrase can generate same-pitch ties without adding Slide. TIE controls their frequency; 90% of generated groups are 2–3 steps when enough adjacent steps are available. In Note Steps, `SHIFT + F3` (third function key) ties or unties the selected range. With SHIFT held and two or more steps selected, the footer labels that key TIE or UNTIE according to the current range; otherwise it remains LENGTH.
 - **Random Shape on Curve tracks.** At each track-loop boundary, write new shapes into the active steps so they are visible in the sequencer. Only Shape changes. The per-track switch is saved with the project; switching it Off leaves the last shapes in place.
 - **Random Project Scale.** Press `SHIFT + PERF` repeatedly to audition other musical scales; `SHIFT + PATT` returns to the stored scale. The override does not rewrite steps or the saved Project scale.
 - **Reversible Project scale changes.** Changing the Project scale leaves stored Note steps intact. Returning to a scale restores the same pitches if those steps were not edited; the Project root stays fixed across musical scales.
@@ -46,7 +46,7 @@ See the [VINX|FORMER ID changelog](doc/ID_CHANGELOG.md), [v0.1.7 public release 
 
 ## Project compatibility
 
-**Back up the SD card before testing this firmware.** VINX|FORMER ID rejects projects containing Stochastic or Logic Tracks and resets the loaded state to the default project. It does not overwrite the rejected file. Use Vinx PER|FORMER to edit or export those tracks. Projects saved by v0.1.8 use the same `Version43` format as v0.1.7; older ID or Vinx PER|FORMER builds may not open them. `Version41` and `Version42` projects still load, with all modulators initially Off.
+**Back up the SD card before testing this firmware.** VINX|FORMER ID rejects projects containing Stochastic or Logic Tracks and resets the loaded state to the default project. It does not overwrite the rejected file. Use Vinx PER|FORMER to edit or export those tracks. Projects saved by v0.1.9 use the same `Version43` format as v0.1.7; older ID or Vinx PER|FORMER builds may not open them. `Version41` and `Version42` projects still load, with all modulators initially Off.
 
 ## Build
 

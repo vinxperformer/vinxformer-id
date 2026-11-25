@@ -2,11 +2,15 @@
 
 This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.5 were local builds.
 
+## v0.1.9 — local build, 25 November 2026
+
+- In Note Steps, holding SHIFT with two or more selected steps changes the third function key label from LENGTH to TIE or UNTIE. The label follows the actual state of the selected range; the shortcut remains SHIFT + F3. The normal LENGTH label returns when SHIFT is released.
+
 ## v0.1.8 — local build, 24 November 2026
 
 - Acid Phrase and Acid Eucl Phrase can generate same-pitch held notes. The context menu's TIE setting controls how often a gated onset starts a held group (Off at 0%; default 25%). Within available adjacent steps, 90% of groups are 2–3 steps and 10% are 4–5; two-step groups are favored. These ties do not add Slide.
 - Tied steps keep the gate through the next step boundary even when track length bias would shorten it. The generator preview joins held steps visually.
-- In Note Steps, SHIFT + F2 toggles a held note across the range from the first to the last selected step. A second press removes the ties and gives the intermediate steps the normal half-step gate length; the pitches stay as edited.
+- In Note Steps, SHIFT + F3 (LENGTH, third function key) toggles a held note across the range from the first to the last selected step. A second press removes the ties and gives the intermediate steps the normal half-step gate length; the pitches stay as edited.
 
 ## v0.1.7 — release, 19 November 2026
 

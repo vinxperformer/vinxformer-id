@@ -112,11 +112,19 @@ void NoteSequenceEditPage::draw(Canvas &canvas) {
         return;
     }
 
-    WindowPainter::drawFooter(canvas, functionNames, pageKeyState(), activeFunctionKey());
+    auto &sequence = _project.selectedNoteSequence();
+    if (pageKeyState()[Key::Shift] && _stepSelection.count() >= 2) {
+        const char *names[] = {
+            functionNames[0], functionNames[1],
+            NoteTie::selectedAreHeld(sequence, _stepSelection.selected()) ? "UNTIE" : "TIE",
+            functionNames[3], functionNames[4],
+        };
+        WindowPainter::drawFooter(canvas, names, pageKeyState(), activeFunctionKey());
+    } else {
+        WindowPainter::drawFooter(canvas, functionNames, pageKeyState(), activeFunctionKey());
+    }
 
     auto &trackEngine = _engine.selectedTrackEngine().as<NoteTrackEngine>();
-
-    auto &sequence = _project.selectedNoteSequence();
     const auto &scale = sequence.selectedScale(_project.scale());
     int currentStep = trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
     if (trackEngine.currentRecordStep()!=-1) {

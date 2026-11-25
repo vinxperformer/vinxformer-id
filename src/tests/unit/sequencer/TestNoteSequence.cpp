@@ -10,7 +10,7 @@
 
 UNIT_TEST("NoteSequence") {
 
-    CASE("SHIFT F2 ties and unties the same selected step range") {
+    CASE("SHIFT F3 ties and unties the same selected step range") {
         NoteSequence sequence;
         sequence.clear();
         sequence.step(3).setGate(true);
@@ -23,7 +23,9 @@ UNIT_TEST("NoteSequence") {
         selected.set(4);
         selected.set(6);
 
+        expectTrue(!NoteTie::selectedAreHeld(sequence, selected));
         expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::Tied);
+        expectTrue(NoteTie::selectedAreHeld(sequence, selected));
         expectTrue(!sequence.step(3).tieForward());
         for (int i = 4; i <= 6; ++i) {
             expectTrue(sequence.step(i).gate());
@@ -35,6 +37,7 @@ UNIT_TEST("NoteSequence") {
         }
 
         expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::Untied);
+        expectTrue(!NoteTie::selectedAreHeld(sequence, selected));
         for (int i = 4; i <= 6; ++i) {
             expectTrue(sequence.step(i).gate());
             expectEqual(5, sequence.step(i).note());
@@ -46,7 +49,7 @@ UNIT_TEST("NoteSequence") {
         expectTrue(NoteTie::toggleSelected(sequence, selected) == NoteTie::Result::Tied);
     }
 
-    CASE("SHIFT F2 with one selected step leaves the sequence unchanged") {
+    CASE("SHIFT F3 with one selected step leaves the sequence unchanged") {
         NoteSequence sequence;
         sequence.clear();
         const NoteSequence before = sequence;
