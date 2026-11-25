@@ -889,13 +889,13 @@ class GeneratorRegressionTest(tf.UiTest):
         self._lp_press_grid(1)  # GRID 2 = Acid Layer
         self.assertTrue(self.env.sequencer.isGeneratorPageTop)
 
-        # Force Density to 100% (F3 + encoder in Acid Layer footer) so
+        # Force Density to 100% (physical F2 + encoder in Acid Phrase footer) so
         # fallback-to-Phrase is deterministic:
         # Phrase mode must create gates; unsupported Layer mode would keep all gates OFF.
-        c.down("f3").wait(10)
+        c.down("f2").wait(10)
         for _ in range(120):
             c.right().wait(2)
-        c.up("f3").wait(20)
+        c.up("f2").wait(20)
 
         # Entry starts on ORIGINAL; first reroll is required to build preview.
         self._lp_press_grid(1)

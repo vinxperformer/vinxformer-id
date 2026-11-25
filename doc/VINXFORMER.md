@@ -2,11 +2,11 @@
 
 This firmware source starts from Vinx PER|FORMER `v0.4.6-beta.2` (firmware source at commit `b1e95b58`). Stochastic Track and Logic Track are no longer selectable. Their runtime engines, sequence pages, generator branches, clipboard actions, and Launchpad UI branches have been removed. The Note track's Logic connection controls are hidden.
 
-The current local build identifies as `VINX|FORMER ID v0.1.8`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.8`; these are separate from the project file format version.
+The current build identifies as `VINX|FORMER ID v0.1.9`. The startup screen adapts the supplied [full-color mockup](branding/README.md) to the module's grayscale 256 × 64 display. System → Update shows the same identity. The numeric version fields in the image tag are `0.1.9`; these are separate from the project file format version.
 
-The resident bootloader may append `(0.1.8)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
+The resident bootloader may append `(0.1.9)` to the identity while displaying the installed or pending update. That formatting is part of the bootloader already on the module and is not replaced by the sequencer `UPDATE.DAT`.
 
-The legacy mode identifiers and serialization code remain so that old project data is read without mistaking another mode for it. A project containing either removed track mode is rejected and reset to the default project; the file on the SD card is not rewritten by that failed load. Back up projects before testing this build. v0.1.8 reads existing `Version41` and `Version42` projects and saves as `Version43` to preserve the eight modulators. They all default Off when loading an older project. Older firmware may not read a project saved in `Version43`. Vinx PER|FORMER is needed to edit or export removed tracks.
+The legacy mode identifiers and serialization code remain so that old project data is read without mistaking another mode for it. A project containing either removed track mode is rejected and reset to the default project; the file on the SD card is not rewritten by that failed load. Back up projects before testing this build. v0.1.9 reads existing `Version41` and `Version42` projects and saves as `Version43` to preserve the eight modulators. They all default Off when loading an older project. Older firmware may not read a project saved in `Version43`. Vinx PER|FORMER is needed to edit or export removed tracks.
 
 ## Measured STM32 memory
 
@@ -23,16 +23,17 @@ All listed builds used the same ARM GCC 6.3.1 toolchain, Release configuration, 
 | VINX|FORMER ID v0.1.6 with saved Random Shape state | 634,820 bytes | 161,680 bytes |
 | VINX|FORMER ID v0.1.7 with eight CV modulators | 642,044 bytes | 162,216 bytes |
 | VINX|FORMER ID v0.1.8 with Acid held notes | 644,984 bytes | 162,216 bytes |
+| VINX|FORMER ID v0.1.9 with contextual TIE/UNTIE | 645,776 bytes | 162,216 bytes |
 
-The v0.1.8 build uses 2,940 bytes more flash and the same RAM as v0.1.7. It remains **115,072 bytes below the baseline in flash** and **3,492 bytes below in RAM**. These are static linker measurements, not runtime memory or hardware validation.
+The v0.1.9 build uses 792 bytes more flash and the same static RAM as v0.1.8. It remains **114,280 bytes below the baseline in flash** and **3,492 bytes below in RAM**. These are static linker measurements, not runtime memory or hardware validation.
 
-For v0.1.8, regular RAM `.bss` is 111,724 bytes, CCM `.bss` is 47,088 bytes, and `.data` is 3,404 bytes. The linker script allocates 960 KiB of ROM, 128 KiB of regular RAM, and 64 KiB of CCM RAM to this application.
+For v0.1.9, regular RAM `.bss` is 111,724 bytes, CCM `.bss` is 47,088 bytes, and `.data` is 3,404 bytes. The linker script allocates 960 KiB of ROM, 128 KiB of regular RAM, and 64 KiB of CCM RAM to this application.
 
 The source is compiled from a temporary path without spaces because the bundled `libopencm3` makefiles do not handle the workspace path's spaces. The temporary build copy is not the deliverable; changes live in this repository.
 
 ## Controllers
 
-The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles. The external 16-step editing mode and its Launch Control XL controller profile have been removed. VINX|FORMER ID does not distribute desktop or web simulators; the source still contains a simulator test harness, including a Launchpad Mk2 adapter for existing UI regression tests.
+The firmware retains Launchpad Pro Mk1 and Launchpad Mini Mk3 controller profiles. The external 16-step editing mode and its Launch Control XL controller profile have been removed. VINX|FORMER ID does not distribute desktop or web simulators; the desktop development simulator and UI test harness remain in source. Its title uses the current firmware name and version. The test harness retains a Launchpad Mk2 adapter for regression tests.
 
 ## Eight CV modulators (v0.1.7)
 

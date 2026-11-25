@@ -12,6 +12,7 @@
 
 #include "sim/TargetConfig.h"
 #include "sim/TargetUtils.h"
+#include "apps/sequencer/Config.h"
 
 #include "args.hxx"
 #include "tinyformat.h"
@@ -28,6 +29,8 @@
 #endif
 
 namespace sim {
+
+static constexpr const char *SimulatorTitle = CONFIG_VERSION_NAME " Simulator";
 
 static std::string formatMidiBytes(const std::vector<uint8_t> &message) {
     std::ostringstream stream;
@@ -83,7 +86,7 @@ Frontend::~Frontend() {
 }
 
 int Frontend::main(int argc, char *argv[]) {
-    args::ArgumentParser parser("PER|FORMER Simulator", "");
+    args::ArgumentParser parser(SimulatorTitle, "");
     args::HelpFlag help(parser, "help", "Display this help menu", { 'h', "help" });
     args::Flag showMidiPorts(parser, "midi", "Show available MIDI ports", { 'm', "midi" });
     args::Flag traceMidi(parser, "trace-midi", "Print incoming simulator MIDI messages", { "trace-midi" });
@@ -399,7 +402,7 @@ void Frontend::setup() {
 
 void Frontend::setupWindow() {
     Vector2i size(Frontpanel::windowWidth, Frontpanel::windowHeight + Frontpanel::controlHeight);
-    _window = std::make_shared<Window>("PER|FORMER Simulator", size);
+    _window = std::make_shared<Window>(SimulatorTitle, size);
 
     setupFrontpanel();
     setupControls();

@@ -2,9 +2,11 @@
 
 This is the history of VINX|FORMER ID. The inherited Vinx PER|FORMER history remains in [CHANGELOG.md](../CHANGELOG.md). Versions v0.1.2–v0.1.5 were local builds.
 
-## v0.1.9 — local build, 25 November 2026
+## v0.1.9 — release, 25 November 2026
 
 - In Note Steps, holding SHIFT with two or more selected steps changes the third function key label from LENGTH to TIE or UNTIE. The label follows the actual state of the selected range; the shortcut remains SHIFT + F3. The normal LENGTH label returns when SHIFT is released.
+- Update the desktop development simulator title to use the firmware identity and version.
+- [Release notes](RELEASE_0.1.9.md).
 
 ## v0.1.8 — local build, 24 November 2026
 

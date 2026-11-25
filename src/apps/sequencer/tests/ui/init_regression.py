@@ -124,7 +124,7 @@ class InitRegressionTest(tf.UiTest):
             step.note = note
 
         # Init Steps from GEN chooser with one selected step: all layers on selected step only.
-        self._run_init_steps_from_generator_select(4)  # Note mode chooser: row 4 = Init Steps
+        self._run_init_steps_from_generator_select(5)  # Note mode chooser: row 5 = Init Steps
 
         gates_after_selected_init_steps = [sequence.steps[i].gate for i in range(4)]
         notes_after_selected_init_steps = [sequence.steps[i].note for i in range(4)]
@@ -149,7 +149,7 @@ class InitRegressionTest(tf.UiTest):
             step.length = 10 + idx
             step.note = note
 
-        self._run_init_steps_from_generator_select(4)
+        self._run_init_steps_from_generator_select(5)
 
         for idx in range(4):
             self.assertFalse(sequence.steps[idx].gate)

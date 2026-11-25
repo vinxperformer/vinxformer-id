@@ -1,8 +1,0 @@
-#!/bin/sh
-
-BUILD_DIR=build/sim/www/src/apps/sequencer
-DEPLOY_DIR=build/deploy-simulator
-
-rm -rf ${DEPLOY_DIR}
-mkdir ${DEPLOY_DIR}
-cp ${BUILD_DIR}/sequencer.* ${DEPLOY_DIR}

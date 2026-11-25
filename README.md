@@ -4,7 +4,7 @@
 
 VINX|FORMER ID is Vinx Scorza's experimental fork of [Vinx PER|FORMER](https://github.com/VinxScorza/performer), itself based on the [Mebitek](https://github.com/mebitek/performer) and [Westlicht](https://github.com/westlicht/performer) PER|FORMER projects. VINX|FORMER ID and Vinx PER|FORMER are separate projects. The [VINX|FORMER ID website](https://vinxperformer.github.io/vinxformer-id/) explains the direction of this fork; the [firmware hub](https://vinxperformer.github.io/) links both projects.
 
-This source identifies as **VINX|FORMER ID v0.1.9**. The v0.1.9 DAT is a local test build. The latest [public firmware release is v0.1.7](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.7). The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
+This source identifies as **VINX|FORMER ID v0.1.9**. The [v0.1.9 firmware release](https://github.com/vinxperformer/vinxformer-id/releases/tag/v0.1.9) includes the DAT. The source base is Vinx PER|FORMER `v0.4.6-beta.2` (`b1e95b58`).
 
 ## What changes in VINX|FORMER ID compared with Vinx PER|FORMER
 
@@ -16,7 +16,7 @@ This source identifies as **VINX|FORMER ID v0.1.9**. The v0.1.9 DAT is a local t
 - **Reversible Project scale changes.** Changing the Project scale leaves stored Note steps intact. Returning to a scale restores the same pitches if those steps were not edited; the Project root stays fixed across musical scales.
 - **Removed track types.** Stochastic and Logic Tracks are no longer available in VINX|FORMER ID.
 - **Removed controller paths.** Launch Control XL support and external 16-step editing are gone. The supported controller profiles are Launchpad Pro Mk1 and Launchpad Mini Mk3.
-- **Removed simulator releases.** VINX|FORMER ID ships neither a desktop nor a web simulator; simulator code remains available for development tests.
+- **Removed simulator releases.** VINX|FORMER ID ships neither a desktop nor a web simulator; simulator code remains available for development tests. The v0.1.9 desktop build identifies itself from the firmware version.
 
 ## If you come from Mebitek
 
@@ -42,7 +42,7 @@ VINX|FORMER ID retains the [Vinx PER|FORMER](https://github.com/VinxScorza/perfo
 - Sequence save/load slots, selected-step movement and undo, and expanded Curve CV recording.
 - Launchpad performance controls and panel shortcuts to Project, Routing, MIDI Output, and User Scale pages.
 
-See the [VINX|FORMER ID changelog](doc/ID_CHANGELOG.md), [v0.1.7 public release notes](doc/RELEASE_0.1.7.md), and [technical report](doc/VINXFORMER.md) for version history, installation, controls, and measured memory use.
+See the [VINX|FORMER ID changelog](doc/ID_CHANGELOG.md), [v0.1.9 release notes](doc/RELEASE_0.1.9.md), and [technical report](doc/VINXFORMER.md) for version history, installation, controls, and measured memory use.
 
 ## Project compatibility
 
